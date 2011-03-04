@@ -136,7 +136,8 @@ function hide_progress() {
 					<a href="/mytemplates/<%=my.id%>?cate=<%= cate %>&search=<%=params[:search]%>&page=<%=params[:page]%>"><img src="/images/template/edit_instant_s.jpg" border="0" title="상세보기"></a>
 					<%#= image_tag("/images/template/edit_instant_s.jpg", :border=>0, :title => "즉시편집", :onClick => "pop('/mlayout?doc_name='+doc_name)")%>
 		
-					<%= link_to image_tag("/images/template/delete_s.jpg", :border=>0, :title => "삭제"), mytemplate_path(my.id), :confirm => '정말 삭제하시겠습니까?',  :method => :delete %>		
+					<%= link_to image_tag("/images/template/delete_s.jpg", :border=>0, :title => "삭제"), mytemplate_path(my.id), :confirm => '정말 삭제하시겠습니까?',  :method => :delete %>
+					<img title="PDF를 생성하여 주문합니다." id="<%= my.id %>" class="order_btn" src="/images/mytemplates/order_new.jpg" style="cursor:pointer;">		
 				</td></tr>
 				<tr>
 				<td>&nbsp;</td></tr>
@@ -189,6 +190,30 @@ end%>
 </table>
 
 <script language="javascript">
+
+$('.order_btn').live("click", function(event){
+	var $id = $(this).attr("id");
+	
+	if( window.confirm("PDF를 생성하여 주문하시겠습니까?")){
+		$.ajax({
+			data:'id='+$id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/mytemplates/publish',
+			success: function(request){
+				alert(request);
+				if(request == "success"){
+					alert("정상적으로 PDF를 생성하여 주문처리 하였습니다.");
+				}else{
+					alert("PDF생성에 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
+				}
+			}
+		});
+	}else{
+		return false;
+	}
+});
+
  function popup(doc_name) {
        // var url = '/mlayout?doc_name='+doc_name;
 	   var url = "/MClientBox/index.html?spread_list=YES&user_path=/user_files/<%= current_user.userid %>&doc_path=/article_templates/"+ doc_name+".mlayoutP"

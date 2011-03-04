@@ -28,6 +28,7 @@ class Mytemplate
   property :pdf,                    String, :length => 200     
   property :pdf_path,               String, :length => 200       
   property :folder,                 String, :default => "basic"
+  property :order_fl,               Boolean, :default => false
 
   timestamps :at
   
