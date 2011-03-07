@@ -1,15 +1,4 @@
-<% 
-up_my_temps = Mytemplate.all(:user_id => current_user.id)
-up_my_temps.each do |u|
-	if !Temp.get(u.temp_id).nil?
-		puts_message Temp.get(u.temp_id).id.to_s
-		u.category = Temp.get(u.temp_id).category
-		u.subcategory = Temp.get(u.temp_id).subcategory
-		u.save
-	end
-	puts_message "mytemp updated"
-end
-%>
+
 <style>
 #layer1{border:0px solid green;position:absolute; left:500px; top:200px;width:100;height:100px; z-index:999999}
 </style>
@@ -66,16 +55,24 @@ function hide_progress() {
 <h2>마이템플릿 리스트</h2>
 </div>
 <div align="right" style="padding:0 24 5 0">
+	<font color="white">주문상태</font> 
+	<span id="order_status_select">
+	<select name="_order_status" onChange="location.href='/mytemplates?page=1&search=<%= params[:search] %>&cate=<%= params[:cate] %>&folder=<%= params[:folder] %>&order='+document.all._order_status.value;">
+		<option value="all" <%= "selected" if params[:order] == "all" %>>전체</option>				
+		<option value="y" <%= "selected" if params[:order] == "y" %>>주문중</option>				
+		<option value="n" <%= "selected" if params[:order] == "n" %>>비주문</option>						
+	</select>
+	
 	<font color="white">폴더별 </font> 
 	<span id="folder_select">
-	<select name="_folder" onChange="location.href='/mytemplates?page=<%= page %>&search=<%= params[:search] %>&cate=<%= params[:cate] %>&folder='+document.all._folder.value;">
+	<select name="_folder" onChange="location.href='/mytemplates?page=<%= page %>&search=<%= params[:search] %>&cate=<%= params[:cate] %>&order=<%= params[:order] %>&folder='+document.all._folder.value;">
 		<option value="all" <%= "selected" if params[:folder] == "all" %>>전체</option>				
 		<%@tempfolders.each do |s| %>	
 		<option value="<%= s.id %>" <%= "selected" if params[:folder] == s.id.to_s %>><%= s.name %></option>				
 		<% end %>
 	</select>
 	</span>
-	<font color="white">메인분류 </font><select name="_cate" onChange="location.href='/mytemplates?search=<%= params[:search] %>&cate='+document.all._cate.value;">
+	<font color="white">메인분류 </font><select name="_cate" onChange="location.href='/mytemplates?search=<%= params[:search] %>&order=<%= params[:order] %>&cate='+document.all._cate.value;">
 		<%  if @categories.length > 0 %>
 				<option value="all" <%= "selected" if cate == "all" %>>전체</option>						
 			<% @categories.each do |s| %>
@@ -90,7 +87,7 @@ function hide_progress() {
     <thead class="clipart_thead">
         <tr>
             <td class="clipart_thead" width="400px">마이 템플릿 리스트 (<%= title_text %>)</td>
-			<td class="clipart_thead" width="400px" align="right"><a href="Javascript:folder_view();"><%= image_tag("/images/folder/folder_manage.jpg", :border=>'0', :align => 'absmiddle') %></a></td>
+			<td class="clipart_thead"   style="text-align:right"><a href="Javascript:folder_view();"><%= image_tag("/images/folder/folder_manage.jpg", :border=>'0', :align => 'absmiddle') %></a></td>
         </tr>
 		<tr>
 			<td colspan="2">
@@ -137,7 +134,12 @@ function hide_progress() {
 					<%#= image_tag("/images/template/edit_instant_s.jpg", :border=>0, :title => "즉시편집", :onClick => "pop('/mlayout?doc_name='+doc_name)")%>
 		
 					<%= link_to image_tag("/images/template/delete_s.jpg", :border=>0, :title => "삭제"), mytemplate_path(my.id), :confirm => '정말 삭제하시겠습니까?',  :method => :delete %>
-					<img title="PDF를 생성하여 주문합니다." id="<%= my.id %>" class="order_btn" src="/images/mytemplates/order_new.jpg" style="cursor:pointer;">		
+					<%if my.order_fl == true %>
+						<img title="PDF를 생성하여 주문합니다." id="<%= my.id %>" src="/images/mytemplates/order_progress.jpg" >
+					<%else %>
+						<img title="PDF를 생성하여 주문합니다." id="<%= my.id %>" class="order_btn" src="/images/mytemplates/order_new.jpg" style="cursor:pointer;">
+					<%end %>
+							
 				</td></tr>
 				<tr>
 				<td>&nbsp;</td></tr>
@@ -175,7 +177,7 @@ end%>
 		<tr>
 			<td width="350">
 				<div class="pager">
-					<%=@mytemplates.pager.to_html "/Mytemplates?search=#{params[:search]}" %>
+					<%= @mytemplates.pager.to_html "/Mytemplates?order=#{params[:order]}&cate=#{params[:cate]}&folder=#{params[:folder]}&search=#{params[:search]}" %>
 					</div></td>
 			<td width="230"></td>
 			<td width="150"></td>
@@ -183,6 +185,7 @@ end%>
 	
 		<tr height="10">
 			<td colspan="3" align="right">
+				
 				    <%= text_field_tag :search, params[:search] %><%= image_submit_tag("/images/board/search.jpg", :border=>'0', :align => "absmiddle") %>	
 			</td>
 		</tr>
@@ -194,18 +197,18 @@ end%>
 $('.order_btn').live("click", function(event){
 	var $id = $(this).attr("id");
 	
-	if( window.confirm("PDF를 생성하여 주문하시겠습니까?")){
+	if( window.confirm("주문하시겠습니까? \n주문후에는 편집을 하실 수 없습니다!")){
 		$.ajax({
 			data:'id='+$id, 
 			dataType:'script', 
 			type:'post', 
-			url:'/mytemplates/publish',
+			url:'/mytemplates/order_process',
 			success: function(request){
-				alert(request);
 				if(request == "success"){
-					alert("정상적으로 PDF를 생성하여 주문처리 하였습니다.");
+					alert("정상적으로 주문처리 하였습니다.\n상세페이지에서 주문을 취소하시면 다시 편집하실 수 있습니다.");
+					$('#'+$id).attr("src","/images/mytemplates/order_progress.jpg").attr("title","현재 주문 진행중이기 때문에 편집하실 수 없습니다.").removeClass("order_btn").css("cursor", "default");
 				}else{
-					alert("PDF생성에 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
+					alert("주문처리를 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
 				}
 			}
 		});
@@ -215,10 +218,24 @@ $('.order_btn').live("click", function(event){
 });
 
  function popup(doc_name) {
-       // var url = '/mlayout?doc_name='+doc_name;
-	   var url = "/MClientBox/index.html?spread_list=YES&user_path=/user_files/<%= current_user.userid %>&doc_path=/article_templates/"+ doc_name+".mlayoutP"
-	   width = screen.width;
-	   height = screen.height;
-      window.open(url ,'webtop_print','width='+width+', height='+height);
+		$.ajax({
+			data:'id='+doc_name, 
+			dataType:'script', 
+			type:'post', 
+			url:'/mytemplates/order_check',
+			success: function(request){
+				if(request == "in_order"){
+					alert("현재 주문 진행중이기 때문에 편집하실 수 없습니다.\n상세페이지에서 주문을 취소하시면 다시 편집하실 수 있습니다.");
+				}else{
+					// var url = '/mlayout?doc_name='+doc_name;
+					   var url = "/MClientBox/index.html?spread_list=YES&user_path=/user_files/<%= current_user.userid %>&doc_path=/article_templates/"+ doc_name+".mlayoutP"
+					   width = screen.width;
+					   height = screen.height;
+				      window.open(url ,'webtop_print','width='+width+', height='+height);
+				}
+			}
+		});
+		
+       
 }
 </script>

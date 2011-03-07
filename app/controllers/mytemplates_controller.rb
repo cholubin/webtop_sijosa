@@ -3,16 +3,8 @@
 class MytemplatesController < ApplicationController
   before_filter :authenticate_user!
 
-  # GET /mytemplates
-  # GET /mytemplates.xml
   def index
 
-    #basic_photo 폴더링크가 없으면 생성한다.
-    # user_path =  "#{RAILS_ROOT}" + "/public/user_files/#{current_user.userid}/images/basic_photo"
-    # if not File.exist?(user_path)
-    #   puts %x[ln -s "#{RAILS_ROOT}/public/basic_photo/" "#{RAILS_ROOT}/public/user_files/#{current_user.userid}/images/basic_photo"]
-    # end
-        
     @menu = "mytemplate"
     @board = "mytemplate"
     @section = "index"
@@ -20,6 +12,14 @@ class MytemplatesController < ApplicationController
     @category_name = params[:category_name]
     @subcategory_name = params[:subcategory_name]
 
+    if params[:order] == "y"
+      order = true
+    elsif params[:order] == "n"
+      order = false
+    else
+      order = "all"
+    end
+    
     cate = params[:cate]
     folder = params[:folder]      
 
@@ -33,17 +33,33 @@ class MytemplatesController < ApplicationController
     @categories = Category.all(:order => :priority)        
 
     if cate == "all" and folder == "all"
-      @mytemplates = Mytemplate.all(:user_id => current_user.id, :order => [:created_at.desc]).search(params[:search], params[:page])                   
+      @mytemplates = Mytemplate.all(:user_id => current_user.id, :order => [:created_at.desc])                   
     elsif cate == "all" and folder != "all"
-      @mytemplates = Mytemplate.all(:folder => Tempfolder.get(folder).name, :user_id => current_user.id, :order => [:created_at.desc]).search(params[:search], params[:page])                                   
+      @mytemplates = Mytemplate.all(:folder => Tempfolder.get(folder).name, :user_id => current_user.id, :order => [:created_at.desc])
     elsif cate != "all" and folder == "all"
-      @mytemplates = Mytemplate.all(:category => cate, :user_id => current_user.id, :order => [:created_at.desc]).search(params[:search], params[:page])                                   
+      @mytemplates = Mytemplate.all(:category => cate, :user_id => current_user.id, :order => [:created_at.desc])
     elsif cate != "all" and folder != "all"
-      @mytemplates = Mytemplate.all(:folder => Tempfolder.get(folder).name, :category => cate, :user_id => current_user.id, :order => [:created_at.desc]).search(params[:search], params[:page])                           
+      @mytemplates = Mytemplate.all(:folder => Tempfolder.get(folder).name, :category => cate, :user_id => current_user.id, :order => [:created_at.desc])
+    end
+
+    if order != true and order != false
+      @mytemplates = @mytemplates.search(params[:search], params[:page])
+    else
+      @mytemplates = @mytemplates.in_order(order).search(params[:search], params[:page])
     end
     
+    up_my_temps = Mytemplate.all(:user_id => current_user.id)
+    up_my_temps.each do |u|
+    	if !Temp.get(u.temp_id).nil?
+    		u.category = Temp.get(u.temp_id).category
+    		u.subcategory = Temp.get(u.temp_id).subcategory
+    		u.save
+    	end
+    end
+    
+    
     @tempfolders = Tempfolder.all(:user_id => current_user.id)
-    render 'mytemplate'
+    render 'mytemplate', :object => @mytemplates
   end
   
   def update_subcategories
@@ -184,7 +200,8 @@ class MytemplatesController < ApplicationController
     
 	  puts %x[#{RAILS_ROOT}"/lib/thumbup" #{mypdf.basic_path + mypdf.pdf_filename} #{mypdf.basic_path + preview_image_name} 0.5 #{mypdf.basic_path + thumb_image_name} 128]            	      
 
-    puts %x[automator -v -i #{mypdf.basic_path + mypdf.pdf_filename} #{RAILS_ROOT}/lib/pdf_reduce.workflow]          	      
+    # 서버에 동일한 이름으로 필터를 만들어줘야 한다. colorsync utility를 이용하면 된다.
+    puts %x[automator -v -i #{mypdf.basic_path + mypdf.pdf_filename} #{RAILS_ROOT}/lib/pdf_reduce_150dpi.workflow]          	      
     puts_message "오토메이트 돌아가는 중 "
 
     
@@ -293,6 +310,44 @@ class MytemplatesController < ApplicationController
     end
   end
   
+  def order_process
+    
+    id = params[:id].to_i
+    mytemp = Mytemplate.get(id)
+    
+    mytemp.order_fl = true
+    
+    if mytemp.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end
+  end
+  
+  def order_check
+    id = params[:id]
+    mytemp = Mytemplate.get(id)
+    
+    if mytemp.order_fl == true
+      render :text => "in_order"
+    else
+      render :text => "not_in_order"
+    end
+  end
+  
+  def order_cancel
+    id = params[:id]
+    mytemp = Mytemplate.get(id)
+  
+    mytemp.order_fl = false
+    
+    if mytemp.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end
+    
+  end
   
     #::PRIVATE METHODS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::    
   private  

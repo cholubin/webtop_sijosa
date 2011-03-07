@@ -4,29 +4,54 @@ class Admin::MytemplatesController < ApplicationController
     layout 'admin_layout'
     before_filter :authenticate_admin!    
     
-  # GET /mytemplates
-  # GET /mytemplates.xml
   def index
 
     @menu = "user"
     @board = "mytemplate"
     @section = "index"
     
-    # @temp = Mytemplate.first(:id => 2)
-    #    @temp.destroy
-    
     @category_name = params[:category_name]
     @subcategory_name = params[:subcategory_name]
 
-    if params[:userid] != nil
-      @mytemplates = Mytemplate.all(:user_id => params[:userid], :order => [:created_at.desc]).search2(params[:search],params[:page])
-      @total_count = Mytemplate.all(:user_id => params[:userid]).search2(params[:search],"").count
+    if params[:order] == "y"
+      order = true
+    elsif params[:order] == "n"
+      order = false
     else
-      @mytemplates = Mytemplate.all(:order => [:created_at.desc]).search2(params[:search],params[:page])
-      @total_count = Mytemplate.all.search2(params[:search],"").count
+      order = "all"
     end
     
+    if params[:cate] != "all" and params[:cate] != nil and params[:cate] != ""
+      cate = params[:cate]
+    else
+      cate = ""
+    end
+    
+    if params[:userid] != nil and params[:userid] != ""
+      @mytemplates = Mytemplate.all(:user_id => params[:userid], :order => [:created_at.desc])
+      @total_count = @mytemplates.all(:user_id => params[:userid]).count
+    else
+      @mytemplates = Mytemplate.all(:order => [:created_at.desc])
+      @total_count = @mytemplates.all.count
+    end
+    
+    if order != true and order != false
+      @total_count = @mytemplates.count
+      @mytemplates = @mytemplates.search2(params[:search], params[:page])
+    else
+      @total_count = @mytemplates.in_order(order).count
+      @mytemplates = @mytemplates.in_order(order).search2(params[:search], params[:page])
+    end
+
+    if cate != nil and cate != ""
+      @total_count = @mytemplates.all(:category => cate).count
+      @mytemplates = @mytemplates.all(:category => cate).search2(params[:search], params[:page])
+    end
+
+    
     @categories = Category.all(:order => :priority)    
+    
+    puts_message "Total Counts: " + @total_count.to_s
     
     @menu = "user"
     @board = "mytemplate"

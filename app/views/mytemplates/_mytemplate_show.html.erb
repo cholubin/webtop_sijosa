@@ -33,7 +33,7 @@
 	
 					<tr>
 						<td width="70" class="table_t5">가격</td>
-						<td width="180" class="table_t5_bold"><%= Temp.get(@mytemplate.temp_id).price if Temp.get(@mytemplate.temp_id).price != nil %></td>
+						<td width="180" class="table_t5_bold"><%= Temp.get(@mytemplate.temp_id).price if Temp.get(@mytemplate.temp_id) != nil %></td>
 					</tr>
 					
 					<tr>
@@ -42,12 +42,12 @@
 	
 					<tr>
 						<td width="70" class="table_t5">사이즈</td>
-						<td width="180" class="table_t5"><%= Temp.get(@mytemplate.temp_id).size if Temp.get(@mytemplate.temp_id).size != nil %></td>
+						<td width="180" class="table_t5"><%= Temp.get(@mytemplate.temp_id).size if Temp.get(@mytemplate.temp_id) != nil %></td>
 					</tr>
 	
 					<tr>
 						<td width="70" class="table_t5">태그</td>
-						<td width="180" class="table_t5"><%= Temp.get(@mytemplate.temp_id).tags if Temp.get(@mytemplate.temp_id).tags != nil %></td>
+						<td width="180" class="table_t5"><%= Temp.get(@mytemplate.temp_id).tags if Temp.get(@mytemplate.temp_id) != nil %></td>
 					</tr>
 					<tr>
 						<td colspan="2" width="250" class="table_t5_underline"></td>
@@ -119,17 +119,38 @@
 <table>
 	<tr>
 		<td width="727" >
+			<%if @mytemplate.order_fl == true %>
+			<img class="order_cancel_btn" id="<%= @mytemplate.id %>" src="/images/mytemplates/order_cancel.jpg" style="cursor:pointer">
+			<%end %>
 			<%= link_to image_tag("/images/board/list.jpg", :border=>0, :align => 'right'), mytemplates_path + "?page=" + params[:page] %>&nbsp;
 			<a title='복사된 템플릿의 기본정보를 수정합니다.' href="/mytemplates/<%= @mytemplate.id.to_s %>/edit?cate=<%= params[:cate] %>&page=<%= params[:page] %>"><img align="right" src="/images/board/modify.jpg" style="padding:0 2 0 2"></a>			
 			<%#= link_to image_tag("/images/template/edit.jpg", :border=>0, :align => 'right', :title => '편집기에서 템플릿을 수정합니다.'), '/mlayout?doc_name='+ @mytemplate.file_filename.gsub(/.zip/,''), :confirm => '바로 편집하시겠습니까?'%>						
-			<% if signed_in? %>
-				<%= javascript_include_tag :defaults %>
-				<%= image_tag '/images/cart/cart.gif', :align => 'left', 
-				:onmouseover => "this.style.cursor='hand';",
-				:onclick => "if (window.confirm('장바구니에 담으시겠습니까?')){}else{return false;};" + remote_function(:url => { :controller => 'mycarts', :action => :create },
-				:with => "'item_id=#{@mytemplate.id.to_s}'")
-				%><span id="into_cart"></span>		
-			<%end %>
 	</td>
 	</tr>
 	</table>
+	
+	
+<script Launguage="Javascript">
+$('.order_cancel_btn').live("click", function(event){
+	var $id = $(this).attr("id");
+	
+	if( window.confirm("주문을 취소하시겠습니까?")){
+		$.ajax({
+			data:'id='+$id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/mytemplates/order_cancel',
+			success: function(request){
+				if(request == "success"){
+					alert("정상적으로 주문을 취소했습니다.");
+					$('#'+$id).remove();
+				}else{
+					alert("주문취소 처리를 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
+				}
+			}
+		});
+	}else{
+		return false;
+	}
+});
+</script>

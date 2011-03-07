@@ -27,7 +27,10 @@
 				<key>AMActionVersion</key>
 				<string>1.6.0</string>
 				<key>AMParameterProperties</key>
-				<dict/>
+				<dict>
+					<key>URL</key>
+					<dict/>
+				</dict>
 				<key>AMProvides</key>
 				<dict>
 					<key>Container</key>
@@ -46,7 +49,7 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>URL</key>
-					<string>/Users/cholubin/Library/Filters/Reduce File Size New.qfilter</string>
+					<string>/Users/cholubin/Library/Filters/Reduce File Size 150 dpi.qfilter</string>
 				</dict>
 				<key>Application</key>
 				<array>
