@@ -73,8 +73,8 @@ class Admin::TempsController < ApplicationController
     @section = "new"
         
     @temp = Temp.new
-    @categories = Category.all(:order => :priority)    
-    @subcategories = Subcategory.all(:order => :priority)
+    @categories = Category.all(:gubun => "template", :order => :priority)    
+    @subcategories = Subcategory.all(:gubun => "template",:order => :priority)
     
      render 'temp'
   end
@@ -575,29 +575,6 @@ class Admin::TempsController < ApplicationController
     puts_message "make_contens_xml finished"
   end
   
-  # def process_index_thumbnail(temp)          
-  # 
-  #   previews = Dir.new(temp.path  + "/web/").entries.sort.delete_if{|x| !(x =~ /jpg$/)}.delete_if{|x| !(x =~ /spread_preview/)}   
-  # 
-  #   
-  #   original_image = temp.path  + "/web/" + previews[0] 
-  #   result_image = temp.path  + "/web/jquery_preview.jpg"                     
-  #   
-  #   puts_message original_image
-  #   
-  #   #rvm ruby 1.8.7 - Development environment on jaigouk's local machine
-  #   # @image = Miso::Image.new(original_image)               
-  # 
-  #   # Native OSX Ruby version includes ruby cocoa
-  #   # @image = Miso::Processor::CoreImage.new(original_image)
-  #   
-  #   # @image.crop(280, 124) #if options[:crop]  
-  #   # @image.fit(280, 124)# if options[:fit]
-  #   # @image.write(result_image)
-  #   temp.spread_preview_url = "#{HOSTING_URL}" + "/user_files/templates/" + @temp.filename + "/web/" + previews[0] 
-  #   temp.save  
-  #   puts_message "process_index_thumbnail finished"   
-  # end
 
   def count_images(temp)       
     begin

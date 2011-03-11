@@ -1,5 +1,5 @@
 ActionController::Routing::Routes.draw do |map|
-  map.resources :mybooks,:mybookpdfs, :mybookfolders
+  map.resources :mybooks,:mybookpdfs, :mybookfolders, :sharedimages
 
   map.resources :tempfolders
 
@@ -38,7 +38,7 @@ ActionController::Routing::Routes.draw do |map|
   # map.resources :mytemplates, :only => [:index, :show]
 
   map.namespace :admin do |admin|
-      admin.resources :folders, :mypdfs, :users, :temps, :categories, :notices, :freeboards, :myadmins, :faqs, :mytemplates, :myimages
+      admin.resources :folders, :mypdfs, :users, :temps, :categories, :imgcategories, :notices, :freeboards, :myadmins, :faqs, :mytemplates, :myimages, :sharedimages
   end 
   
   map.download_image '/download_image' , :controller => "ourimages", :action => 'download_image'    

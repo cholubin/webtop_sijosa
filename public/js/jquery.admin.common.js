@@ -11,6 +11,7 @@ function to_comma(price){
 }
 
 
+
 $('.check_all').live("click", function(){
 	if ( $('#all_checked').val() == "false" ){
 		

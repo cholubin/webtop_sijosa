@@ -310,6 +310,38 @@ class MytemplatesController < ApplicationController
     end
   end
   
+  def deleteSelection  
+
+     chk = params[:temp_id].split(',')
+
+     if !chk.nil? 
+
+       chk.each do |c|
+         mytemplate = Mytemplate.get(c.to_i)
+         close_document(mytemplate)
+
+         begin
+           if mytemplate != nil
+             if File.exist?(mytemplate.path.force_encoding('UTF8-MAC')) 
+               FileUtils.remove_entry_secure mytemplate.path.force_encoding('UTF8-MAC') 
+             end
+           end
+         rescue
+           puts_message "Error! in progress of mytemplate file deletion."
+         end
+
+         mytemplate.destroy
+       end
+      end
+
+      @mytemplates = Mytemplate.all(:user_id => current_user.id, :order => [:created_at.desc])
+
+      render :update do |page|
+        page.replace_html 'partial_page', :partial => 'mytemp_partial', :object => @mytemplates
+      end
+     end
+     
+  
   def order_process
     
     id = params[:id].to_i

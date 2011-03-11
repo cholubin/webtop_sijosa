@@ -59,6 +59,7 @@
 	            <td class="board_thead" width="150px"><center>카테고리/서브카테고리</center></td>
 	            <td class="board_thead" width="65px"><center>등록일</center></td>	
 				<td class="board_thead" width="80px"><center>소유자</center></td>
+				<td class="board_thead" width="80px"><center>PDF</center></td>
 				<td class="board_thead" width="30px"><center class="check_all" style="cursor:hand;">선택</center></td>				
 	        </tr>
 	    </thead>
@@ -79,7 +80,7 @@
 	        <tr class="table_b","board_tbody">
 	            <th class="board_tbody" width="40px"><%= @page_num %></th>
 	            <td class="board_tbody" width="120px"><center><a href="/admin/mytemplates/<%= mytemplate.id.to_s %>?search=<%= params[:search] %>&userid=<%= params[:userid] %>&page=<%= params[:page] %>"><%= "<img src='" + temp_image_path + "'>" if mytemplate.thumb_url %></a></center></td>
-				<td class="board_tbody" width="150px"><center><a href="/admin/mytemplates/<%= mytemplate.id.to_s %>?search=<%= params[:search] %>&userid=<%= params[:userid] %>&page=<%= params[:page] %>"><%= mytemplate.name %></a></center></td>
+				<td class="board_tbody" width="150px"><center><a href="/admin/mytemplates/<%= mytemplate.id.to_s %>?search=<%= params[:search] %>&userid=<%= params[:userid] %>&page=<%= params[:page] %>"><%= mytemplate.name %>(id: <%= mytemplate.id %>)</a></center></td>
 				<td class="board_tbody" width="150px"><center>
 					<%
 					if mytemplate.category != nil and mytemplate.subcategory != nil
@@ -98,6 +99,21 @@
 				</td>
 	            <td class="board_tbody" width="65px"><center><%= mytemplate.created_at.strftime('%Y-%m-%d') %></center></td>
 	            <td class="board_tbody" width="80px"><center><%= User.get(mytemplate.user_id).userid %><br>(<%= User.get(mytemplate.user_id).name %>)</center></td>
+				<td class="board_tbody" width="30px">
+					<%if mytemplate.order_fl == true %>
+					<center><img class="pdf_create" id="<%= mytemplate.id %>" src="/images/admin/pdf_create.jpg" style="cursor:pointer; margin:0 0 5 0">
+						<%
+						filename = mytemplate.id.to_s + "_" + User.get(mytemplate.user_id).userid + ".pdf"
+				    	basic_path = RAILS_ROOT + "/public/pdf_admin/" 
+						if File.exist?(basic_path + filename)
+						%>
+						<a href="/pdf_admin/<%= filename %>" target="new"><img class="pdf_download" id="dn_<%= mytemplate.id %>" src="/images/admin/pdf_download.jpg" style="cursor:pointer;"></a>
+						<%else %>
+						<a href="/pdf_admin/<%= filename %>" target="new"><img class="pdf_download" id="dn_<%= mytemplate.id %>" src="/images/admin/pdf_download.jpg" style="cursor:pointer;display:none"></a>
+						<%end %>
+						</center>
+					<%end %>
+					</td>
 				<td class="board_tbody" width="30px"><center><input type="checkbox" class="chk_box" name="chk[<%= mytemplate.id %>]"></center></td>
 	        </tr>
 	        <% @page_num -= 1
@@ -136,7 +152,33 @@
 		
 
 
+<script language="Javascript">
+$('.pdf_create').live("click", function(event){
+	var $id = $(this).attr("id");
+	
+	if( window.confirm("PDF를 생성하시겠습니까? \n기존에 생성한 파일은 덮어쓰게 됩니다!")){
+		$('#'+$id).attr("src","/images/admin/spin.gif")
+		$.ajax({
+			data:'id='+$id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/admin/mytemplates/publish',
+			success: function(request){
+				$('#'+$id).attr("src","/images/admin/pdf_create.jpg");
+				if(request == "success"){
+					// alert("정상적으로 PDF를 생성했습니다.");
+					$('#dn_'+$id).css("display","block");
+				}else{
+					alert("PDF 생성에 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
+				}
+			}
+		});
+	}else{
+		return false;
+	}
+});
 
+</script>
 
 
 

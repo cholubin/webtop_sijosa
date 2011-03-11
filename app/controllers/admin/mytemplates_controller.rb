@@ -115,22 +115,27 @@ class Admin::MytemplatesController < ApplicationController
   end
 
   def publish
-    puts_message params[:id]
-    @mytemplate = Mytemplate.first(:file_filename => params[:id] + ".mlayoutP.zip", :user_id => current_user.id)   
-    # @temp = Temp.find(@article.temp_id)
-    # reset_imgs(@article)      
+    press_mark = "YES"
+    
+    @mytemplate = Mytemplate.get(params[:id].to_i)   
     erase_job_done_file(@mytemplate)       
-    # generate_xml(@article)
-    check_job_done_and_publish(@mytemplate) 
-    # check_jpg_and_process_thumbnail(@article)  
-    close_document(@mytemplate)  
-    erase_job_done_file(@mytemplate)
-    flash[:notice] = "Your PDF file is ready!"
-    redirect_to :action => 'index'
+    return_value = check_job_done_and_publish(@mytemplate, press_mark) 
+    if return_value == "success"
+      close_document(@mytemplate)  
+      erase_job_done_file(@mytemplate)
+      return_value = move_to_mypdf(@mytemplate)
+      
+      if return_value == "success"
+        render :text => "success"
+      else
+        render :text => "fail"
+      end
+    else
+      render :text => "fail"
+    end
+    
   end
 
-  # POST /mytemplates
-  # POST /mytemplates.xml
   def create
     @mytemplate = Mytemplate.new
     @mytemplate.user_id = current_user.id  
@@ -246,6 +251,36 @@ class Admin::MytemplatesController < ApplicationController
     #::PRIVATE METHODS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::    
   private  
 
+  def move_to_mypdf(mytemplate)
+    puts_message "move_to_mypdf start!"
+
+    filename = mytemplate.id.to_s + "_" + User.get(mytemplate.user_id).userid + ".pdf"
+    # mypdf.user_id = current_user.id
+    
+    basic_path = RAILS_ROOT + "/public/pdf_admin/"
+    
+    begin
+      while File.exist?(basic_path + filename) 
+        FileUtils.rm_rf basic_path + filename
+      end
+    
+      source_path = @mytemplate.pdf_path
+      destination_dir = basic_path + filename
+      
+      puts_message "source_path::" + source_path
+      puts_message "destination_dir::" + destination_dir
+      
+      FileUtils.cp_r source_path, destination_dir
+
+      puts_message "move_to_mypdf end!"    
+      return "success"
+    rescue
+      puts_message "move_to_mypdf fail!"    
+      return "fail"
+    end
+    
+  end
+  
     def check_done_txt(mytemplate) 
       path = mytemplate.path
       job_done = path+"/web/done.txt"
@@ -256,18 +291,20 @@ class Admin::MytemplatesController < ApplicationController
       end
     end
 
-    def check_job_done_and_publish(mytemplate)
+    def check_job_done_and_publish(mytemplate, press_mark)
       puts_message "check_job_done_and_publish start"      
-      publish_mjob(mytemplate) 
-      set_pdf_path(mytemplate)    
-      path = mytemplate.path
-      job_done = path+"/web/done.txt"
-      loop do 
-         break if File.exists?(job_done)
-      end                        
-      # closing a doc right after generating pdf throws mlayout error
-      # close_document(mytemplate)
-      puts_message "check_job_done_and_publish end"      
+      return_value = publish_mjob(mytemplate, press_mark) 
+
+      puts_message "return_value" + return_value
+      if return_value == "success"
+        set_pdf_path(mytemplate)    
+        path = mytemplate.path
+
+        puts_message "check_job_done_and_publish end"      
+        return "success"
+      else
+        return "fail"
+      end
     end
 
     def check_jpg_and_process_thumbnail(mytemplate)
@@ -286,15 +323,16 @@ class Admin::MytemplatesController < ApplicationController
     end 
 
     def erase_job_done_file(mytemplate)         
-      puts_message "erase_job_done_file start"
-      
-      path = mytemplate.path
-    
-      job_done = path + "/web/done.txt" 
-      if File.exists?(job_done)
-        FileUtils.remove_entry_secure(job_done)
-      end
-      puts_message "erase_job_done_file end"      
+       puts_message "erase_job_done_file start"
+
+        path = mytemplate.path
+
+        job_done = path + "/web/done.txt" 
+        if File.exists?(job_done)
+          FileUtils.remove_entry_secure(job_done)
+          puts_message "job done file erased!"              
+        end
+        puts_message "erase_job_done_file end"     
     end
 
     def find_user
@@ -421,7 +459,6 @@ class Admin::MytemplatesController < ApplicationController
     end 
 
     def close_document(mytemplate)  
-
       target_template = mytemplate
       path =  target_template.path
 
@@ -442,25 +479,37 @@ class Admin::MytemplatesController < ApplicationController
       </plist>
 
       EOF
-      close_job_file = (path + "/close_job.mJob") 
-      File.open(close_job_file,'w') { |f| f.write close_xml } 
-      system "open #{close_job_file}"
+
+      close_job_file = path + "/close_job.mJob"
+      
+      if File.exist?(path)
+        File.open(close_job_file,'w') { |f| f.write close_xml } 
+        system "open #{close_job_file}"
+      else
+        puts_message "해당 템플릿은 이미 삭제된 상태입니다."
+      end
     end
 
 
-    def publish_mjob(mytemplate)  
-      puts_message "publish_mjob start"      
+    def publish_mjob(mytemplate, press_mark)  
+ 
+      puts_message "publish_mjob start press_mark added"      
+      puts_message "press_mark:::" + press_mark
       # erase_job_done_file(mytemplate)   
       target_template = mytemplate
       goal = target_template.path    
-
+      puts_message goal
+#      goal = mypdf.basic_path    
+      
       xml_file = <<-EOF
       <?xml version="1.0" encoding="UTF-8"?>
       <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
       <plist version="1.0">
       <dict>
-      <key>WebRootPath</key>
-      <string>#{M_ROOT}</string>
+        <key>PressMark</key>
+        <string>#{press_mark}</string>
+        <key>WebRootPath</key>
+        <string>#{M_ROOT}</string>
       	<key>Action</key>
       	<string>SaveDocumentPDF</string>
       	<key>DocPath</key>
@@ -476,19 +525,62 @@ class Admin::MytemplatesController < ApplicationController
       File.open(njob,'w') { |f| f.write xml_file }    
       # process_index_thumbnail(target_template.path) 
       system "open #{njob}"
-      set_pdf_path(mytemplate)
-      puts_message "publish_mjob end"               
-    end    
+      
 
-    def set_pdf_path(mytemplate)
-      pdf = "#{RAILS_ROOT}" + "/public/user_files/" + current_user.userid + "/mytemplate_templates/" + "#{mytemplate.file_filename.gsub(/.zip/,'')}" +"/web/document.pdf"
-      url = "#{HOSTING_URL}" + "/user_files/" + current_user.userid + "/mytemplate_templates/" + "#{mytemplate.file_filename.gsub(/.zip/,'')}" +"/web/document.pdf" 
-      mytemplate.pdf = url 
-      mytemplate.pdf_path = pdf
-      mytemplate.save  
+      goal = goal + "/web/document.pdf"
+
+      job_done = target_template.path + "/web/done.txt" 
+
+
+      puts_message "creating PDF file!!!"
+      time_after_600_seconds = Time.now + 600.seconds     
+      
+      while Time.now < time_after_600_seconds
+        pid = `ps -c -eo pid,comm | grep MLayout`.to_s
+        pid = pid.gsub(/MLayout 2/,'').gsub(' ', '')
+        
+        break if File.exists?(job_done) or pid == ""
+      end
+      
+      
+      
+      if !File.exists?(job_done)
+        if pid != "" 
+          system "kill #{pid}"     
+          puts_message "MLayout was killed!!!!! ============"
+        else
+          puts_message "MLayout was lock downed ! ============"
+        end
+        
+        return "fail"
+      else
+        puts_message "There is job done file of PDF file making!"
+        set_pdf_path(mytemplate)
+        return "success"
+      end
+      
+      puts_message "publish_mjob end"               
     end
 
-
+    def set_pdf_path(mytemplate)
+      # mypdf = Mypdf.new
+      # mypdf.user_id = current_user.id
+      #        
+      # puts_message mypdf.basic_path
+      userid = User.get(mytemplate.user_id).userid
+      puts_message "set_pdf_path Start!"
+      pdf = "#{RAILS_ROOT}" + "/public/user_files/" + userid + "/article_templates/" + "#{mytemplate.file_filename.gsub(/.zip/,'')}" +"/web/document.pdf"
+      url = "#{HOSTING_URL}" + "/user_files/" + userid + "/article_templates/" + "#{mytemplate.file_filename.gsub(/.zip/,'')}" +"/web/document.pdf" 
+      mytemplate.pdf = url 
+      mytemplate.pdf_path = pdf
+      if mytemplate.save
+        puts_message "pdf_path saved!"
+      else
+        puts_message "pdf_path save failed!"
+      end
+      puts_message "set_pdf_path Finished!" 
+    end
+    
     #::IMAGE PROCESSING METHODS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::      
 
     def process_index_thumbnail(mytemplate) 

@@ -12,7 +12,7 @@ class PagesController < ApplicationController
     @title  = "home"
     @menu = "home"
     
-    @categories = Category.all(:order => [ :priority.asc ])
+    @categories = Category.all(:gubun => "template", :order => [:priority])
     @mytemplates_namecard_best = Temp.all(:category => "명함").best
     @mytemplates_banner_best = Temp.all(:category => "현수막").best
     @freeboards = Freeboard.all(:limit => 4, :order => :created_at.desc)
@@ -41,14 +41,14 @@ class PagesController < ApplicationController
   def about
     @title = "about"
     @menu = "about" 
-    @categories = Category.all(:order => [:priority])
+    @categories = Category.all(:gubun => "template", :order => [:priority])
 
   end
   
   def tutorial
     @title = "tutorial"
     @menu = "tutorial"
-    @categories = Category.all(:order => [:priority])
+    @categories = Category.all(:gubun => "template", :order => [:priority])
 
   end
   

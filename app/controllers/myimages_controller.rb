@@ -30,14 +30,26 @@ class MyimagesController < ApplicationController
     end
     
     if ext == "all" and folder == "all"
-      @myimages = Myimage.all(:user_id => current_user.id, :order => [:created_at.desc]).search_user(params[:search], params[:page])                   
+      @myimages = Myimage.all(:user_id => current_user.id, :order => [:created_at.desc])                   
     elsif ext == "all" and folder != "all"
-      @myimages = Myimage.all(:folder => Folder.get(folder).name, :user_id => current_user.id, :order => [:created_at.desc]).search_user(params[:search], params[:page])                                   
+      @myimages = Myimage.all(:folder => Folder.get(folder).name, :user_id => current_user.id, :order => [:created_at.desc])
     elsif ext != "all" and folder == "all"
-      @myimages = Myimage.all(:type => ext, :user_id => current_user.id, :order => [:created_at.desc]).search_user(params[:search], params[:page])                                   
+      @myimages = Myimage.all(:type => ext, :user_id => current_user.id, :order => [:created_at.desc])
     elsif ext != "all" and folder != "all"
-      @myimages = Myimage.all(:folder => Folder.get(folder).name, :type => ext, :user_id => current_user.id, :order => [:created_at.desc]).search_user(params[:search], params[:page])                           
+      @myimages = Myimage.all(:folder => Folder.get(folder).name, :type => ext, :user_id => current_user.id, :order => [:created_at.desc])
     end
+    
+    if params[:open] != nil and params[:open] != "" and params[:open] != "all"
+      if params[:open] == "y"
+        @myimages = @myimages.all(:open_fl => true).search_user(params[:search], params[:page])
+      elsif params[:open] = "n"
+        @myimages = @myimages.all(:open_fl => false).search_user(params[:search], params[:page])
+      end
+    else
+      @myimages = @myimages.search_user(params[:search], params[:page])
+    end
+    
+    
     
     @folders = Folder.all(:user_id => current_user.id)
 
@@ -375,5 +387,26 @@ class MyimagesController < ApplicationController
         page.replace_html 'myimage_partial', :partial => 'myimage_partial', :object => @myimages
       end     
   end
-  
+
+  def change_open_status
+    id = params[:id].to_i
+    myimage = Myimage.get(id)
+    
+    puts_message myimage.open_fl.to_s
+    
+    if myimage.open_fl == true
+      myimage.open_fl = false
+      render_str =  "cancel_share"
+    else
+      myimage.open_fl = true
+      render_str =  "share"
+    end
+    
+    if myimage.save 
+      render :text => render_str
+    else
+      render :text => "fail"
+    end
+    
+  end
 end

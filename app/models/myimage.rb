@@ -44,6 +44,11 @@ class Myimage
       (Myimage.all(:name.like => "%#{search}%") | Myimage.all(:tags.like => "%#{search}%")).page :page => page, :per_page => 10
   end
   
+  def self.open(open_fl)
+      Myimage.all(:open_fl => open_fl)
+  end
+  
+  
   def set_dir
     if not self.user.nil?
       MyimageUploader.store_dir = "#{RAILS_ROOT}" + "/public/user_files/#{self.user.userid}/images/"

@@ -10,38 +10,56 @@ class Admin::MyimagesController < ApplicationController
       gubun = params[:gb]
       ext = params[:ext]
       
+      if params[:share] != nil and params[:share] != "" and params[:share] != "all"
+  			share = params[:share]
+  			if share == "y"
+  			  open_fl = true
+  			else
+  			  open_fl = false
+			  end
+			  
+  		else
+  			share = "all"
+  		end
+  		
+  		
       if gubun != "admin"
         @menu = "myimage"
         @board = "myimage"
         @section = "index"
         
         if ext == "all" or ext == nil or ext == ""
-          @myimages = Myimage.all(:admin_id => nil, :order => [:created_at.desc]).search_user(params[:search], params[:page])   
-          @total_count = Myimage.all(:admin_id => nil).search_user(params[:search], "").count
+          @myimages = Myimage.all(:admin_id => nil, :order => [:created_at.desc])   
         else
-          @myimages = Myimage.all(:admin_id => nil, :type => ext, :order => [:created_at.desc]).search_user(params[:search], params[:page])           
-          @total_count = Myimage.all(:admin_id => nil, :type => ext).search_user(params[:search], "").count
+          @myimages = Myimage.all(:admin_id => nil, :type => ext, :order => [:created_at.desc])
         end
-
         @exts = repository(:default).adapter.select('SELECT distinct type FROM myimages where common = \'f\'')
 
-        render 'myimage'
-        
       else
         @menu = "template"
         @board = "temp"
         @section = "admin_image"
         
         if ext == "all" or ext == nil or ext == ""
-          @myimages = Myimage.all(:common => true, :order => [:created_at.desc]).search_user(params[:search], params[:page])   
-          @total_count = Myimage.all(:common => true).search_user(params[:search], "").count   
+          @myimages = Myimage.all(:common => true, :order => [:created_at.desc])   
         else
-          @myimages = Myimage.all(:common => true, :type => ext, :order => [:created_at.desc]).search_user(params[:search], params[:page])           
-          @total_count = Myimage.all(:common => true, :type => ext).search_user(params[:search], "").count
+          @myimages = Myimage.all(:common => true, :type => ext, :order => [:created_at.desc])           
         end
 
         @exts = repository(:default).adapter.select('SELECT distinct type FROM myimages where common = \'t\'')
-
+      end
+      
+      if share != "all"
+        @myimages = @myimages.open(open_fl).search_user(params[:search], params[:page])
+        @total_count = @myimages.open(open_fl).search_user(params[:search], "").count
+      else
+        @myimages = @myimages.search_user(params[:search], params[:page])
+        @total_count = @myimages.search_user(params[:search], "").count
+      end
+      
+      if gubun != "admin"
+        render 'myimage'
+      else
         render '/admin/temps/temp'
       end
       

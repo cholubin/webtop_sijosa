@@ -8,12 +8,12 @@ class Category
   
   # Class Configurations ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   include DataMapper::Resource
-
   
   # Attributes ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   property :id,           Serial
   property :name,         String, :required => true
   property :priority,     Integer, :default => 9999
+  property :gubun,        String, :default => "template"
   timestamps :at
 
   has n, :subcategories

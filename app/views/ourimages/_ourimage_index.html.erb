@@ -1,3 +1,9 @@
+<% if params[:ext] != nil; ext = params[:ext] else; ext = "" end
+   if params[:folder] != nil; folder = params[:folder] else; folder = "" end
+   if params[:page] != nil; page = params[:page] else; page = "" end
+   if params[:search] != nil; search = params[:search] else; search = "" end
+%>
+
 <style>
 #layer1{border:0px solid green;position:absolute; left:500px; top:200px;width:100;height:100px; z-index:99999;}
 </style>
@@ -6,15 +12,6 @@
 
 
 <script language="javascript">
-
-// function result(){
-// 	var result = new Array();
-// 	$.each($("input[@name='chk[]']:checked"), function() {
-// 	  result.push($(this).val());
-// 	});
-// 	return result
-// 
-// }
 
 function folder_view() {
 	var t = document.getElementById('folder');
@@ -46,16 +43,12 @@ function hide_progress() {
 	document.getElementById("layer1").style.display = "none";		
 }
 </script>
-<% if params[:ext] != nil; ext = params[:ext] else; ext = "" end
-   if params[:folder] != nil; folder = params[:folder] else; folder = "" end
-   if params[:page] != nil; page = params[:page] else; page = "" end
-   if params[:search] != nil; search = params[:search] else; search = "" end
-%>
 
 <%= stylesheet_link_tag '/css/paginate.css' %>
 	<div id="admincontents_wrapper">
 	<h2>공유 클립아트 리스트</h2>
 	<p2>다른 사용자들이 공유한 클립아트 리스트 입니다. <br>
+		자신이 공유한 이미지는 나타나지 않습니다.
 	</p2>
 	</div>
 

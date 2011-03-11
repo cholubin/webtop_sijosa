@@ -1,4 +1,5 @@
-<% @categories.each do |category| %>
+<%
+	@categories.each do |category| %>
  	<h3><a class="<%= "on" if @category_name == category.name%>" href="/temps?category_name=<%= category.id %>"><%= category.name %></a></h3>
 	<p>
 	  <% @subcategories = category.subcategories  %>

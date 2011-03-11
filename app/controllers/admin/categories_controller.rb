@@ -9,7 +9,7 @@ class Admin::CategoriesController < ApplicationController
     @board = "category"
     @section = "index"
       
-    @categories = Category.all(:order => [ :priority.asc ])
+    @categories = Category.all(:gubun => "template", :order => [ :priority.asc ])
 
      render 'admin/categories/category', :layout => false
   end

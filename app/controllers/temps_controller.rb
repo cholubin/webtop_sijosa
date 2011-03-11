@@ -56,7 +56,7 @@ class TempsController < ApplicationController
       
     end
     
-    @categories = Category.all(:order => :priority)    
+    @categories = Category.all(:gubun => "template", :order => :priority)    
     
     @menu = "template"
     @board = "temp"
@@ -99,8 +99,8 @@ class TempsController < ApplicationController
   # GET /temps/new.xml
   def new
     @temp = Temp.new
-    @categories = Category.all(:order => :priority)    
-    @subcategories = Subcategory.all(:order => :priority)
+    @categories = Category.all(:gubun => "template", :order => :priority)    
+    @subcategories = Subcategory.all(:gubun => "template", :order => :priority)
     
      render '/temps/new', :layout => false
   end

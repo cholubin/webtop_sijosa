@@ -1,3 +1,20 @@
+<%
+	if params[:open] != nil and params[:open] != "" and params[:open] != "all"
+		if params[:open] == "y"
+			open = "y"
+		elsif params[:open] == "n"
+			open = "n"
+		end
+	else
+		open = "all"
+	end
+ 	
+	if params[:ext] != nil; ext = params[:ext] else; ext = "" end
+	if params[:folder] != nil; folder = params[:folder] else; folder = "" end
+	if params[:page] != nil; page = params[:page] else; page = "" end
+	if params[:search] != nil; search = params[:search] else; search = "" end
+%>
+
 <style>
 #layer1{border:0px solid green;position:absolute; left:500px; top:200px;width:100;height:100px; z-index:99999;}
 </style>
@@ -62,11 +79,6 @@ function hide_progress() {
 	document.getElementById("layer1").style.display = "none";		
 }
 </script>
-<% if params[:ext] != nil; ext = params[:ext] else; ext = "" end
-   if params[:folder] != nil; folder = params[:folder] else; folder = "" end
-   if params[:page] != nil; page = params[:page] else; page = "" end
-   if params[:search] != nil; search = params[:search] else; search = "" end
-%>
 
 <%= stylesheet_link_tag '/css/paginate.css' %>
 	<div id="admincontents_wrapper">
@@ -90,6 +102,11 @@ function hide_progress() {
 
 	%>	
 	<div align="right" style="padding:0 24 5 0">
+		<font color="white">공유:</font> <select name="_share" onChange="location.href='/myimages?page=<%= page %>&search=<%= params[:search] %>&ext=<%= params[:ext] %>&open='+document.all._share.value;">
+			<option value="all" <%= "selected" if open == "all" %>>전체</option>				
+			<option value="y" <%= "selected" if open == "y" %>>공유중</option>				
+			<option value="n" <%= "selected" if open == "n" %>>비공유</option>				
+		</select>
 		<font color="white">폴더별 </font> 
 		<span id="folder_select">
 		<select name="_folder" id="folder_select" onChange="location.href='/myimages?page=<%= page %>&search=<%= params[:search] %>&ext=<%= params[:ext] %>&folder='+document.all._folder.value;">
@@ -137,7 +154,7 @@ function hide_progress() {
 				<td>
 					<!-- <템플릿 정보 반복 구간입니다.> -->
 					<table class="template_table">
-						<tr><td><input type="checkbox" name="chk[]" value="<%= myimage.id %>"></td></tr>
+						<tr><td><input type="checkbox" class="chkbox" name="chk[]" value="<%= myimage.id %>"></td></tr>
 						<td class="templatelist" width="180">
 							<a title="<%= myimage.description if !myimage.description.nil? %>" href="/myimages/<%= myimage.id.to_s %>?folder=<%= params[:folder] %>&ext=<%=ext%>&page=<%= params[:page] %>">
 								<%
@@ -170,6 +187,11 @@ function hide_progress() {
 						<td class="templatelist">
 							<%#= link_to '삭제', myimage_path(myimage.id.to_s), :confirm => '정말 삭제하시겠습니까?', :method => :delete %>
 							<%= link_to image_tag("/images/template/delete_s.jpg", :border=>0), myimage_path(myimage.id.to_s), :confirm => '정말 삭제하시겠습니까?', :method => :delete %>
+							<%if myimage.open_fl == true %>
+								<img class="share" id="share_<%= myimage.id %>" src="/images/myimage/share_cancel.jpg" style="cursor:pointer;" title="진행중인 공유를 취소합니다.">
+							<%else %>
+								<img class="share" id="share_<%= myimage.id %>" src="/images/myimage/share.jpg" style="cursor:pointer;" title="다른 사용자들과 자신의 이미지를 공유합니다.">
+							<%end %>
 						</td>
 						</tr>
 
@@ -227,3 +249,61 @@ end%>
 	</div>
 </div>
 
+<script Language="Javascript">
+	$('.share').live("click", function(){
+		var $id = $(this).attr("id").replace("share_","");
+		// $(this).attr("src","/images/share/spin.gif");
+		$.ajax({
+			data:'id='+$id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/myimages/change_open_status',
+			success: function(request){
+				if( request == "share"){
+					$('#share_'+$id).fadeOut("slow", function(){
+						$(this).attr("src","/images/myimage/share_cancel.jpg");
+						$(this).attr("title","진행중인 공유를 취소합니다.");
+						$(this).fadeIn("slow")	;
+					})
+					
+				}else if (request == "cancel_share"){
+					$('#share_'+$id).fadeOut("slow", function(){
+						$(this).attr("src","/images/myimage/share.jpg");
+						$(this).attr("title","다른 사용자들과 자신의 이미지를 공유합니다.");
+						$(this).fadeIn("slow");
+					})
+					
+				}else{
+					alert("공유상태 변경에 실패하였습니다. 관리자에게 문의하여 주십시오.");
+				}
+			}
+		});
+	})
+	
+	$('.chkbox').live("dblclick", function(){
+		if ( $(this).attr("checked") == false ){
+
+			$('.chkbox').each(function(){
+				if($(this).attr("checked") == true ){
+					$(this).attr("checked", false);
+				}else{
+					$(this).attr("checked", true);
+				}
+			})
+
+			$(this).attr("checked", true);
+
+		}else{
+			$('.chkbox').each(function(){
+				if($(this).attr("checked") == true ){
+					$(this).attr("checked", false);
+				}else{
+					$(this).attr("checked", true);
+				}
+
+			})
+
+			$(this).attr("checked", false);
+		}
+	})
+</script>

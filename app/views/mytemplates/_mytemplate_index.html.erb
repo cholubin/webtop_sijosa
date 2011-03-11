@@ -96,6 +96,7 @@ function hide_progress() {
 		</tr>
     </thead>
 </table>
+<div id="partial_page">
 <%
 @temp = 1 
 @mytemplates.each do |my| %>
@@ -109,9 +110,11 @@ function hide_progress() {
 		<td>
 			<!-- <템플릿 정보 반복 구간입니다.> -->
 			<table class="template_table">
-				<tr>
-				<td width>&nbsp;</td></tr>
-				<tr>
+				<tr><td>
+					<%if my.order_fl == false %>
+					<input type="checkbox" id="chk_<%= my.id %>" class="chkbox" name="chk[]" value="<%= my.id %>">
+					<%end %>
+				</td></tr>
 				<td class="templatelist" width="180">
 					<% temp_image_path = my.thumb_url  if my.thumb_url
 						doc_name = my.id.to_s
@@ -132,8 +135,10 @@ function hide_progress() {
 
 					<a href="/mytemplates/<%=my.id%>?cate=<%= cate %>&search=<%=params[:search]%>&page=<%=params[:page]%>"><img src="/images/template/edit_instant_s.jpg" border="0" title="상세보기"></a>
 					<%#= image_tag("/images/template/edit_instant_s.jpg", :border=>0, :title => "즉시편집", :onClick => "pop('/mlayout?doc_name='+doc_name)")%>
-		
-					<%= link_to image_tag("/images/template/delete_s.jpg", :border=>0, :title => "삭제"), mytemplate_path(my.id), :confirm => '정말 삭제하시겠습니까?',  :method => :delete %>
+					
+					<%if my.order_fl == false %>
+						<%= link_to image_tag("/images/template/delete_s.jpg", :id => "del_#{my.id}", :border=>0, :title => "삭제"), mytemplate_path(my.id), :confirm => '정말 삭제하시겠습니까?',  :method => :delete %>
+					<%end %>
 					<%if my.order_fl == true %>
 						<img title="PDF를 생성하여 주문합니다." id="<%= my.id %>" src="/images/mytemplates/order_progress.jpg" >
 					<%else %>
@@ -154,13 +159,33 @@ function hide_progress() {
 <!-- <템플릿 정보창 한줄 반복 구간입니다. -->	
 <% @temp += 1
 end%>
+</div>
 
 <% if @mytemplates.count > 0 %>
 <table class="clipart_table2">
     <thead>
         <tr>
+			<tr><td colspan="2"><div id="line_bottom2"></div></td></tr>
             <td class="clipart_thead_bottom" width="400px">&nbsp;</td>
-			<td class="clipart_thead_bottom" width="400px" align="right"><a href="Javascript:folder_view();"><%= image_tag("/images/folder/folder_manage.jpg", :border=>'0', :align => 'absmiddle') %></a></td>
+			<td class="clipart_thead_bottom" width="350" align="right">
+				<% if @mytemplates.count > 0 %>
+				<%= image_tag '/images/board/delete.jpg', :align => 'absmiddle', 
+				:onmouseover => "this.style.cursor='hand';",
+				:onclick => "
+				if( $(':checkbox:checked').length > 0){
+					if (window.confirm('선택하신 파일을 정말 삭제하시겠습니까?')){
+
+					}else{
+						return false;
+					};
+				}else{
+					alert('먼저 삭제할 대상을 선택해주세요!');
+					return false;
+				}" + remote_function(:url => { :controller => 'mytemplates', :action => :deleteSelection },
+				:with => "'temp_id=' + result()")
+				%>
+				<% end %>
+			</td>
         </tr>
 		<tr>
 			<td colspan="2">
@@ -207,6 +232,12 @@ $('.order_btn').live("click", function(event){
 				if(request == "success"){
 					alert("정상적으로 주문처리 하였습니다.\n상세페이지에서 주문을 취소하시면 다시 편집하실 수 있습니다.");
 					$('#'+$id).attr("src","/images/mytemplates/order_progress.jpg").attr("title","현재 주문 진행중이기 때문에 편집하실 수 없습니다.").removeClass("order_btn").css("cursor", "default");
+					$('#chk_'+$id).fadeOut("slow", function(){
+						$(this).remove();
+					})
+					$('#del_'+$id).fadeOut("slow", function(){
+						$(this).remove();
+					})
 				}else{
 					alert("주문처리를 실패했습니다. 관리자에게 문의해주시기 바랍니다!");
 				}
@@ -225,7 +256,7 @@ $('.order_btn').live("click", function(event){
 			url:'/mytemplates/order_check',
 			success: function(request){
 				if(request == "in_order"){
-					alert("현재 주문 진행중이기 때문에 편집하실 수 없습니다.\n상세페이지에서 주문을 취소하시면 다시 편집하실 수 있습니다.");
+					alert("현재 주문 진행중이기 때문에 삭제하거나 편집하실 수 없습니다.\n상세페이지에서 주문을 취소하시면 다시 삭제하거나 편집하실 수 있습니다.");
 				}else{
 					// var url = '/mlayout?doc_name='+doc_name;
 					   var url = "/MClientBox/index.html?spread_list=YES&user_path=/user_files/<%= current_user.userid %>&doc_path=/article_templates/"+ doc_name+".mlayoutP"
@@ -238,4 +269,41 @@ $('.order_btn').live("click", function(event){
 		
        
 }
+
+function result(){
+	var result = new Array();
+	$.each($("input[@name='chk[]']:checked"), function() {
+	  result.push($(this).val());
+	});
+	return result
+
+}
+
+$('.chkbox').live("dblclick", function(){
+	if ( $(this).attr("checked") == false ){
+
+		$('.chkbox').each(function(){
+			if($(this).attr("checked") == true ){
+				$(this).attr("checked", false);
+			}else{
+				$(this).attr("checked", true);
+			}
+		})
+
+		$(this).attr("checked", true);
+
+	}else{
+		$('.chkbox').each(function(){
+			if($(this).attr("checked") == true ){
+				$(this).attr("checked", false);
+			}else{
+				$(this).attr("checked", true);
+			}
+
+		})
+
+		$(this).attr("checked", false);
+	}
+})
+
 </script>
