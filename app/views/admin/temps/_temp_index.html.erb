@@ -19,11 +19,9 @@
 			<td align="right">
 				분류: <select name="_sort" onChange="location.href='/admin/temps?sort='+document.all._sort.value;">
 					<option value="all">전체</option>				
-					<%  if Category.all.length > 0 %>
-						<% Category.all.each do |s| %>
+						<% @categories.each do |s| %>
 							<option value="<%= s.id %>" <%= "selected" if params[:sort] == s.id.to_s %>><%= s.name %></option>				
 						<%end%>
-					<%end %>
 				</select>	
 			</td>			
 		</tr>

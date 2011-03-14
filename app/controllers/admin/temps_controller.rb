@@ -27,7 +27,7 @@ class Admin::TempsController < ApplicationController
       @total_count = Temp.all(:category => sort).search2(params[:search],"").count    
     end
           
-    @categories = Category.all(:order => :priority)    
+    @categories = Category.all(:gubun => "template", :order => :priority)    
     
     @menu = "template"
     @board = "temp"

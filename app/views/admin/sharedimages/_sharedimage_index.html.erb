@@ -8,6 +8,15 @@
 <br><br>
 
 	</div>
+	<p>
+		카테고리:<select id="category_select">
+			<option value="all">전체</option>
+			<% @categories.each do |cat| %>
+			<option value="<%= cat.id%>" <%= "selected" if params[:cate].to_i == cat.id %>><%= cat.name %></option>
+			<%end %>
+			</select><input type="button" value="카테고리관리" style="cursor:pointer;" onClick="location.href='/admin/imgcategories'">
+	  <p/>
+	
 	
 	<% form_tag :action => :deleteSelection, :method => 'post' do %>			
 	<input type="hidden" id="all_checked" value="false">
@@ -27,7 +36,7 @@
 	%>
 
 	<div align="right" style="padding:0 175 5 0">
-		공개여부: <select name="_share" onChange="location.href='/admin/sharedimages?ext=<%= params[:ext] %>&share='+document.all._share.value;">
+		공개여부: <select name="_share" onChange="location.href='/admin/sharedimages?cate=<%= params[:cate] %>&ext=<%= params[:ext] %>&share='+document.all._share.value;">
 			<option value="all" <%= "selected" if share == "all" %>>전체</option>				
 			<option value="y" <%= "selected" if share == "y" %>>공개</option>				
 			<option value="n" <%= "selected" if share == "n" %>>비공개</option>				
@@ -48,7 +57,7 @@
 	            <th class="board_thead" width="60px">번호 </th>
 	            <td class="board_thead" width="100px"><center>썸네일</center></td>
 				<td class="board_thead" width="80px"><center>제목</center></td>
-	            <td class="board_thead" width="80px"><center>사용자 아이디 </center></td>
+	            <td class="board_thead" width="180px"><center>카테고리</center></td>
 	            <td class="board_thead" width="65px"><center>공개여부</center></td>
 				<td class="board_thead" width="30px"><center class="check_all" style="cursor:hand;">선택</center></td>
 	        </tr>
@@ -62,7 +71,11 @@
 				end
 				@page_num = @total_count - (12 * @temp_page) %>
 				
-			<% @sharedimages.each do |sharedimage| %>
+			<% @sharedimages.each do |sharedimage| 
+			   cate_name = Category.get(sharedimage.category).name
+			   subcate_name = Subcategory.get(sharedimage.subcategory).name
+			   cate_name_string = cate_name + "/" + subcate_name
+			%>
 	        <tr class="table_b","board_tbody">
 	            <th class="board_tbody" width="60px"><%= @page_num %></th>
 	            <td class="board_tbody" width="1px">
@@ -71,7 +84,7 @@
 					</center>
 				</td>
 				<td class="board_tbody" width="80px"><center><%= sharedimage.name %></center></td>
-				<td class="board_tbody" width="80px"><center></center></td>
+				<td class="board_tbody" width="180px"><center><%= cate_name_string %></center></td>
 				<% sharedimage.open_fl == true ? shared_status = "공개": shared_status = "비공개" %>
 	            <td class="board_tbody" width="80px"><center><%= shared_status%></center></td>
 				<td class="board_tbody" width="30px"><center><input type="checkbox" class="chk_box" name="chk[<%= sharedimage.id %>]"></center></td>
@@ -121,4 +134,8 @@
 		
 
 
-
+<script language="Javascript">
+$('#category_select').live("change", function(){
+	location.href = "/admin/sharedimages?cate=" + $('#category_select :selected').val() + '&share=<%= params[:share] %>';
+})
+</script>

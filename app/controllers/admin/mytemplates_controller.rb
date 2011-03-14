@@ -49,7 +49,7 @@ class Admin::MytemplatesController < ApplicationController
     end
 
     
-    @categories = Category.all(:order => :priority)    
+    @categories = Category.all(:gubun => "template", :order => :priority)    
     
     puts_message "Total Counts: " + @total_count.to_s
     

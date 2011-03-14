@@ -7,7 +7,6 @@ class Admin::SharedimagesController < ApplicationController
   # GET /myimages.xml
   def index
       #확장자별 소팅
-      gubun = params[:gb]
       ext = params[:ext]
       
       share = params[:share]
@@ -31,8 +30,15 @@ class Admin::SharedimagesController < ApplicationController
       else
         @sharedimages = Sharedimage.all(:type => ext, :order => [:created_at.desc])           
       end
-
-      @exts = repository(:default).adapter.select('SELECT distinct type FROM sharedimages where open_fl = \'t\'')
+      
+      if params[:cate] != nil and params[:cate] != "" and params[:cate] != "all"
+          if params[:subcate] != nil and params[:subcate] != ""
+            @sharedimages = @sharedimages.all(:category => params[:cate].to_i, :subcategory => params[:subcate].to_i)
+          else
+            @sharedimages = @sharedimages.all(:category => params[:cate].to_i)
+          end
+      end
+      
       
       if share != "all"
         @sharedimages = @sharedimages.open(open_fl).search_user(params[:search], params[:page])
@@ -41,7 +47,10 @@ class Admin::SharedimagesController < ApplicationController
         @sharedimages = @sharedimages.search_user(params[:search], params[:page])
         @total_count = @sharedimages.search_user(params[:search], "").count
       end
-      
+
+      @exts = repository(:default).adapter.select('SELECT distinct type FROM sharedimages where open_fl = \'t\'')
+
+      @categories = Category.all(:gubun => "image", :order => [:priority])
       render 'sharedimage'
       
   end
@@ -249,21 +258,13 @@ class Admin::SharedimagesController < ApplicationController
   # GET /myimages/1
   # GET /myimages/1.xml
   def show
-      @sharedimage = Sharedimage.get(params[:id])
+      @sharedimage = Sharedimage.get(params[:id].to_i)
       
-      if params[:gb] == "admin"
-        @menu = "template"
-        @board = "temp"
-        @section = "image_show"
-        
-        render '/admin/temps/temp'
-      else
-        @menu = "myimage"
-        @board = "myimage"
-        @section = "show"
-        
-        render '/admin/myimages/myimage'
-      end
+      @menu = "board"
+      @board = "sharedimage"
+      @section = "show"
+            
+      render 'sharedimage'
 
   end
 

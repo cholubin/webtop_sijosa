@@ -8,7 +8,8 @@
 	카테고리:<%= collection_select :sharedimage, :category, @categories, :id, :name, 
 						 {:selected   => "1"}, 
 						 {:onchange => "#{remote_function(:url  => {:action => "update_subcategories"},:with => "'category_id='+value")}"} %>
-	<span id="subcategories"><%= render :partial => 'subcategories', :object => Subcategory.all(:category_id => Category.first(:gubun => "image", :order => [:priority]).id) %></span>	
+	<span id="subcategories"><%= render :partial => 'subcategories', :object => Subcategory.all(:category_id => Category.first(:gubun => "image", :order => [:priority]).id) %></span>
+	<input type="button" value="카테고리관리" style="cursor:pointer;" onClick="location.href='/admin/imgcategories'">	
   <p/>	
 
   <p>

@@ -1,12 +1,6 @@
-	<%= image_tag @myimage.url %>
-<p>
+<div style="text-align:center;padding-right:100px;">	
+	<%= image_tag @sharedimage.url, :width => '600' %>
+	<p><b>이미지명:</b>  <%=h @sharedimage.name %><br></p>
+</div>
 
-  <b>이미지명:</b>  <%=h @myimage.name %><br>
-
-  <b>아이디:</b>  <%=h User.get(@myimage.user_id.to_s).userid %><br>
-
-  <b>이름:</b>  <%=h User.get(@myimage.user_id.to_s).name %><br>
-
-</p>
-
-<input type="button" style="cursor:hand;" value="목록" onClick="location.href='/admin/myimages'">
+<input type="button" style="cursor:hand;" value="목록" onClick="location.href='/admin/sharedimages'">
