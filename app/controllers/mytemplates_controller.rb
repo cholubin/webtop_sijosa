@@ -30,7 +30,7 @@ class MytemplatesController < ApplicationController
       folder = "all"
     end
           
-    @categories = Category.all(:order => :priority)        
+    @categories = Category.all(:gubun => "template", :order => :priority)        
 
     if cate == "all" and folder == "all"
       @mytemplates = Mytemplate.all(:user_id => current_user.id, :order => [:created_at.desc])                   
@@ -82,7 +82,7 @@ class MytemplatesController < ApplicationController
     @board = "mytemplate"
     @section = "show"
     
-    @categories = Category.all(:order => :priority)   
+    @categories = Category.all(:gubun => "template", :order => :priority)   
     @mytemplate = Mytemplate.get(params[:id])
     
     @category_name = @mytemplate.category
@@ -94,7 +94,7 @@ class MytemplatesController < ApplicationController
   # GET /mytemplates/new.xml
   def new
     @mytemplate = Mytemplate.new
-    @categories = Category.all(:order => :priority)    
+    @categories = Category.all(:gubun => "template", :order => :priority)    
     @subcategories = Subcategory.all(:order => :priority)
     
      render 'admin/mytemplates/new', :layout => false

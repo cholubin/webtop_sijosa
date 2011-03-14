@@ -57,7 +57,7 @@ class Admin::TempsController < ApplicationController
     @board = "temp"
     @section = "show"
     
-    @categories = Category.all(:order => :priority)   
+    @categories = Category.all(:gubun => "template", :order => :priority)   
     @temp = Temp.get(params[:id])
     
     @category_name = @temp.category

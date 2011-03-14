@@ -80,7 +80,7 @@ class Admin::MytemplatesController < ApplicationController
     @board = "mytemplate"
     @section = "show"
     
-    @categories = Category.all(:order => :priority)   
+    @categories = Category.all(:gubun => "template", :order => :priority)   
     @mytemplate = Mytemplate.get(params[:id])
     
     @category_name = @mytemplate.category
@@ -97,7 +97,7 @@ class Admin::MytemplatesController < ApplicationController
     @section = "new"
         
     @mytemplate = Mytemplate.new
-    @categories = Category.all(:order => :priority)    
+    @categories = Category.all(:gubun => "template", :order => :priority)    
     @subcategories = Subcategory.all(:order => :priority)
     
      render 'admin/mytemplates/new', :layout => false
