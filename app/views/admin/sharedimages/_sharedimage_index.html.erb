@@ -58,7 +58,7 @@
 	            <td class="board_thead" width="100px"><center>썸네일</center></td>
 				<td class="board_thead" width="80px"><center>제목</center></td>
 	            <td class="board_thead" width="180px"><center>카테고리</center></td>
-	            <td class="board_thead" width="65px"><center>공개여부</center></td>
+	            <td class="board_thead" width="100px"><center>공개여부</center></td>
 				<td class="board_thead" width="30px"><center class="check_all" style="cursor:hand;">선택</center></td>
 	        </tr>
 	    </thead>
@@ -85,8 +85,15 @@
 				</td>
 				<td class="board_tbody" width="80px"><center><%= sharedimage.name %></center></td>
 				<td class="board_tbody" width="180px"><center><%= cate_name_string %></center></td>
-				<% sharedimage.open_fl == true ? shared_status = "공개": shared_status = "비공개" %>
-	            <td class="board_tbody" width="80px"><center><%= shared_status%></center></td>
+				<% 
+					if sharedimage.open_fl == true 
+						shared_status = "공개" 
+				   	else
+						shared_status = "비공개" 
+					end
+					
+				%>
+	            <td class="board_tbody" width="100px"><center><input style="cursor:pointer;" type="button" class="change_btn" id="change_<%= sharedimage.id %>" value="<%= shared_status %>"></center></td>
 				<td class="board_tbody" width="30px"><center><input type="checkbox" class="chk_box" name="chk[<%= sharedimage.id %>]"></center></td>
 	        </tr>
 	        <% @page_num -= 1
@@ -138,4 +145,47 @@
 $('#category_select').live("change", function(){
 	location.href = "/admin/sharedimages?cate=" + $('#category_select :selected').val() + '&share=<%= params[:share] %>';
 })
+
+$('.change_btn').live("mouseover", function(){
+	$(this).attr("origin_value",$(this).val());
+	if($(this).val() == "공개"){
+		$(this).attr("value","비공개로 변경");
+	}else{
+		$(this).attr("value","공개로 변경");
+	}
+	
+})
+
+$('.change_btn').live("mouseout", function(){
+	$(this).attr("value",$(this).attr("origin_value"));	
+})
+
+$('.change_btn').live("click", function(){
+	var $id = $(this).attr("id").replace("change_","");
+	
+	if(window.confirm("공개상태를 변경하시겠습니까?")){
+		$.ajax({
+			data:'id='+ $id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/admin/sharedimages/change_open_status',
+			success: function(request){
+				if(request == "success"){
+					if($('#change_'+$id).attr("origin_value") == "공개"){
+						$('#change_'+$id).attr("origin_value","비공개");
+						$('#change_'+$id).attr("value","비공개");
+					}else{
+						$('#change_'+$id).attr("origin_value","공개");
+						$('#change_'+$id).attr("value","공개");
+					}
+				}else{
+					alert("상태변경에 실패했습니다!\n관리자에게 문의하여 주십시오!");
+				}
+				
+			}
+		});
+	}else{return false;}
+})
+
+
 </script>

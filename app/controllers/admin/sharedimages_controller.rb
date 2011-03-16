@@ -355,5 +355,17 @@ class Admin::SharedimagesController < ApplicationController
           page.replace_html 'subcategories', :partial => 'subcategories', :object => subcategories
         end
     end
-         
+  
+  def change_open_status
+    id = params[:id]
+    sharedimage = Sharedimage.get(id)
+    
+    sharedimage.open_fl = !sharedimage.open_fl
+    
+    if sharedimage.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end
+  end
 end
