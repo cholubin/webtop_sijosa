@@ -58,10 +58,12 @@ class FoldersController < ApplicationController
   
   def create_folder
 
-    if Folder.all(:name => params[:folder_name]).count < 1
+    if Folder.all(:name => params[:folder_name], :user_id => current_user.userid).count < 1
       if params[:folder_name] != "basic_photo"
+        
         @folder = Folder.new()
-        @folder.name = params[:folder_name]
+        @folder.origin_name = params[:folder_name]
+        @folder.name = sanitize_filename(params[:folder_name])
 
         @folder.user_id = current_user.id
 
@@ -98,8 +100,9 @@ class FoldersController < ApplicationController
         
     @folder = Folder.get(params[:folder_id].to_i)
     ori_folder_name = @folder.name
-    ren_folder_name = params[:folder_name]    
+    ren_folder_name = sanitize_filename(params[:folder_name])    
     @folder.name = ren_folder_name
+    @folder.origin_name = params[:folder_name]
     
     basic_path = "#{RAILS_ROOT}" + "/public/user_files/#{current_user.userid}/images/"
     folder_path = basic_path + @folder.name

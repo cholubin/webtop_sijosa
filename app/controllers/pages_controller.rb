@@ -9,6 +9,16 @@ class PagesController < ApplicationController
      #Subcategory.up
     # 
     
+    # @users = User.all()
+    # @users.each do |u|
+    #   u.password = "1234"
+    #   if u.save
+    #     puts_message "password change action success!"
+    #   else
+    #     puts_message "password change action fail!"
+    #   end
+    # end
+    
     @title  = "home"
     @menu = "home"
     

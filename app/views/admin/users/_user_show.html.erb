@@ -13,6 +13,33 @@
   <%=h @user.email %>
 </p>
 
+<p>
+  <b>소속합회:</b>
+  <%=h @user.group1 %>
+</p>
+<p>
+  <b>교회:</b>
+  <%=h @user.group2 %>
+</p>
+<p>
+  <b>연락처:</b>
+  <%=h @user.tel %> / <%=h @user.mobile %>
+</p>
+<p>
+  <b>배송처:</b>
+  <%=h @user.post_spot %>
+</p>
+<p>
+  <b>우편번호:</b>
+  <%=h @user.zip_code %>
+</p>
+
+<p>
+  <b>주소:</b>
+  <%=h @user.addr1 + " " + @user.addr2 %>
+</p>
+
+
 <%
 count_image = Myimage.all(:user_id => @user.id).count
 count_temp = Mytemplate.all(:user_id => @user.id).count

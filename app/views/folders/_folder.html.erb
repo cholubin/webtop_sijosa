@@ -20,7 +20,7 @@
 			<table width="400">
 				<tr>
 					<td width="140">
-						&nbsp;<%= image_tag "/images/folder/folder_2.jpg", :width=>'20', :align => 'absmiddle' %>&nbsp;<font color="#cbe35a" style="font-size:14px"><%= s.name %> </font>									
+						&nbsp;<%= image_tag "/images/folder/folder_2.jpg", :width=>'20', :align => 'absmiddle' %>&nbsp;<font color="#cbe35a" style="font-size:14px"><%= s.origin_name %> </font>									
 						<input type="hidden" name="folder_id_<%= i %>" id="folder_id_<%= i %>" value="<%= s.id.to_s %>">
 					</td>
 					<td width="30" align="right">
@@ -34,7 +34,7 @@
 					</td>
 					<td width="230">
 						<% if s.name != "basic"  %>											
-						<input type="txt" name="folder_name" id="folder_name_<%= i %>" value="<%= s.name %>">
+						<input type="txt" name="folder_name" id="folder_name_<%= i %>" value="<%= s.origin_name %>">
 						<%= image_tag '/images/folder/modify.jpg', :align => 'absmiddle', 
 						:onmouseover => "this.style.cursor='hand';",
 						:onclick => "if (window.confirm('폴더명을 변경하시겠습니까? 해당폴더 내부의 모든클립들도 변경된 폴더로 이동됩니다!')){show_progress();}else{return false;};" + remote_function(:url => { :controller => 'folders', :action => :update_folder },

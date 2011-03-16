@@ -34,5 +34,11 @@
 </div>
 
 <p style="text-align:right;padding-right:30px;">
-<%= link_to image_tag("/images/board/list.jpg", :border=>0), sharedimages_path + "?ext="+params[:ext]+"&page=" + params[:page] %>
+<img src="/images/ourimage/download.jpg" style="cursor:pointer;" id="img_dn"> <%= link_to image_tag("/images/board/list.jpg", :border=>0), sharedimages_path + "?ext="+params[:ext]+"&page=" + params[:page] %>
 </p>
+
+<script language="Javascript">
+$('#img_dn').live("click", function(){
+	location.href = '/download_sharedimage?id=<%= @sharedimage.id %>';
+})
+</script>

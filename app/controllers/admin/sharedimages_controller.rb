@@ -48,7 +48,7 @@ class Admin::SharedimagesController < ApplicationController
         @total_count = @sharedimages.search_user(params[:search], "").count
       end
 
-      @exts = repository(:default).adapter.select('SELECT distinct type FROM sharedimages where open_fl = \'t\'')
+      @exts = repository(:default).adapter.select('SELECT distinct type FROM sharedimages')
 
       @categories = Category.all(:gubun => "image", :order => [:priority])
       render 'sharedimage'

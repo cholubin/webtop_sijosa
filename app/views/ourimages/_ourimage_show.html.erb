@@ -48,15 +48,6 @@ ext_name = File.extname(@myimage.image_filename)
 <script language="Javascript">
 $('#img_dn').live("click", function(){
 	location.href = '/download_image?id=<%= @myimage.id %>';
-	// $.ajax({
-	// 	data:'id=<%= @myimage.id %>', 
-	// 	dataType:'script', 
-	// 	type:'post', 
-	// 	url:'/ourimages/download_image',
-	// 	success: function(request){
-	// 		alert("다운로드가 시작되었습니다!");
-	// 	}
-	// });
 })
 
 </script>

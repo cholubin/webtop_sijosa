@@ -96,7 +96,12 @@ class MyimagesController < ApplicationController
     if Folder.first(:user_id => current_user.id.to_s, :name => "photo") == nil
       @folder = Folder.new()
       @folder.name = "photo"
+      @folder.origin_name = "photo"
       @folder.user_id = current_user.id
+      @folder.save
+    else
+      @folder = Folder.first(:user_id => current_user.id.to_s, :name => "photo")
+      @folder.origin_name = "photo"
       @folder.save
     end
 
@@ -127,28 +132,24 @@ class MyimagesController < ApplicationController
     
     @myimage = Myimage.new(params[:myimage])
     @myimage.user_id = current_user.id
+  
+    if params[:myimage][:folder] != "" and params[:myimage][:folder] != nil
+      folder = sanitize_filename(params[:myimage][:folder])
+    else
+      folder = "photo"
+    end
+    @myimage.folder = sanitize_filename(folder)
+  
     
-    image_path = @myimage.image_path
-    MyimageUploader.store_dir = @myimage.image_path
+    image_path = @myimage.image_folder(folder)
+    MyimageUploader.store_dir = image_path
     
-    puts_message "dir::::>" + @myimage.image_path
     # 이미지 업로드 처리 ===============================================================================
     if params[:myimage][:image_file] != nil
 
       @myimage.image_file = params[:myimage][:image_file]      
       @temp_filename = sanitize_filename(params[:myimage][:image_file].original_filename)
 
-
-      # 중복파일명 처리 ===============================================================================
-      while File.exist?(image_path + "/" + @temp_filename) 
-        ext_name = File.extname(@temp_filename)
-        file_name = @temp_filename.gsub(ext_name,'')
-
-        @temp_filename = file_name + "_1" + ext_name
-        @myimage.image_filename = @temp_filename
-        
-        puts image_path + "/" + @temp_filename
-      end 
 
       ext_name = File.extname(@temp_filename)      
       file_name = @temp_filename.gsub(ext_name,'')
@@ -157,67 +158,49 @@ class MyimagesController < ApplicationController
        
       @myimage.image_filename = @temp_filename
       
-      if ext_name == ".eps" or ext_name == ".pdf"
-        @myimage.image_thumb_filename = file_name + ".png"
-      else
-        @myimage.image_thumb_filename = file_name + ".jpg"
-      end
-       # 중복파일명 처리 ===============================================================================
-
+      
       @myimage.image_filename_encoded = @myimage.image_file.filename
 
       if params[:myimage][:name] == ""
         @myimage.name = file_name
       end
 
-      if params[:myimage][:folder] == ""
-        @myimage.folder = "photo"
-      else
-        @myimage.folder = params[:myimage][:folder]
-      end
-      puts_message @myimage.folder
-      
+
       if @myimage.save  
+        if @myimage.type == "eps" or @myimage.type == "pdf"
+          @myimage.image_thumb_filename = @myimage.id.to_s + ".png"
+        else
+          @myimage.image_thumb_filename = @myimage.id.to_s + ".jpg"
+        end
+        
+        @myimage.save  
          # image filename renaming ======================================================================
 
-         ext_name_up = File.extname(@myimage.image_filename_encoded)
-         file_name_up = @myimage.image_filename_encoded.gsub(ext_name_up,'')
+         # ext_name_up = File.extname(@myimage.image_filename_encoded)
+         # file_name_up = @myimage.image_filename_encoded.gsub(ext_name_up,'')
          
          
-        if (file_name_up + ext_name_up)
-          if  File.exist?(image_path + "/" + file_name_up + ext_name_up)
-            if params[:myimage][:folder] == "photo"
-          	  File.rename image_path + "/" + @myimage.image_filename_encoded, image_path  + "/" + file_name + ext_name #original file
+          if  File.exist?(@myimage.image_folder(folder) +  @myimage.id.to_s + "." + @myimage.type)
+          	  image_folder = @myimage.image_folder(folder)
           	  
-          	  if ext_name_up == ".eps" or ext_name_up == ".pdf"
-          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_path + "/" + @myimage.image_filename} #{image_path + "/preview/" + file_name + ".png"} 0.5 #{image_path + "/thumb/" + file_name + ".png"} 128]            	  
+          	  target_path = image_folder + @myimage.id.to_s + "." + @myimage.type
+          	  
+          	  if @myimage.type == "eps" or @myimage.type == "pdf"
+          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{target_path} #{image_folder + "/preview/" + @myimage.id.to_s + ".png"} 0.5 #{image_folder + "/thumb/" + @myimage.id.to_s + ".png"} 128]            	  
           	  else
-          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_path + "/" + @myimage.image_filename} #{image_path + "/preview/" + file_name + ".jpg"} 0.5 #{image_path + "/thumb/" + file_name + ".jpg"} 128]            	  
-        	    end
-          	else
-          	  image_folder = @myimage.image_folder(params[:myimage][:folder])
-          	  File.rename image_path + "/" + @myimage.image_filename_encoded, image_folder  + "/" + file_name + ext_name #original file
-          	  if ext_name_up == ".eps" or ext_name_up == ".pdf"
-          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_folder + "/" + @myimage.image_filename} #{image_folder + "/preview/" + file_name + ".png"} 0.5 #{image_folder + "/thumb/" + file_name + ".png"} 128]            	  
-          	  else
-          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_folder + "/" + @myimage.image_filename} #{image_folder + "/preview/" + file_name + ".jpg"} 0.5 #{image_folder + "/thumb/" + file_name + ".jpg"} 128]            	  
+          	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{target_path} #{image_folder + "/preview/" + @myimage.id.to_s + ".jpg"} 0.5 #{image_folder + "/thumb/" + @myimage.id.to_s + ".jpg"} 128]            	  
           	  end
-          	end
           end
-        end      
          # image filename renaming ======================================================================
          redirect_to myimages_path
-       else
+      else
          render 'myimage'
-       end
+      end
 
     else
           flash[:notice] = '이미지는 반드시 선택하셔야 합니다.'      
-          
           render 'myimage'
     end
-      
-      # MyimageUploader.store_dir = @myimage.image_path
 
   end
 
@@ -325,25 +308,35 @@ class MyimagesController < ApplicationController
   def destroy
     @myimage = Myimage.get(params[:id])
     
-    image_path = @myimage.image_folder(@myimage.folder)
+     image_path = @myimage.image_folder(@myimage.folder)
+     image_filename = @myimage.id.to_s + "." + @myimage.type
+     
+    if @myimage.type == "pdf" or @myimage.type == "eps"
+      image_thumb_filename = @myimage.id.to_s + ".png"
+    else
+      image_thumb_filename = @myimage.id.to_s + ".jpg"
+    end
     
-    if !image_path.nil? && !@myimage.image_filename.nil?
-      if  File.exist?(image_path + "/" + @myimage.image_filename)
+    if  File.exist?(image_path +image_filename)
       
-        #오리지날 파일 삭제
-    	  File.delete(image_path + "/" + @myimage.image_filename)         #original image file      
-  	  
-    	  # 썸네일 삭제
-    	  if File.exist?(image_path + "/thumb/" + @myimage.image_filename)
-    	    File.delete(image_path + "/thumb/" + @myimage.image_filename)         #original image file
-    	  end
-    	  # 프리뷰 삭제
-    	  if File.exist?(image_path + "/preview/" + @myimage.image_filename)
-          File.delete(image_path + "/preview/" + @myimage.image_filename)   #thumbnail image file  	  
-        end
-    	end
-  	end
-    @myimage.destroy
+     #오리지날 파일 삭제
+      File.delete(image_path + image_filename)         #original image file      
+        puts image_path + image_filename
+      # 썸네일 삭제
+      if File.exist?(image_path + "Thumb/" + image_thumb_filename)
+        File.delete(image_path + "Thumb/" + image_thumb_filename)         #original image file
+      end
+      # 프리뷰 삭제
+      if File.exist?(image_path + "Preview/" + image_thumb_filename)
+       File.delete(image_path + "Preview/" + image_thumb_filename)   #thumbnail image file  	  
+      end
+    end
+    
+      if @myimage.destroy
+        puts_message "destroy success"
+      else
+        puts_message "destroy fail"
+      end
 
     respond_to do |format|
       format.html { redirect_to(myimages_url) }
@@ -360,24 +353,34 @@ class MyimagesController < ApplicationController
          @myimage = Myimage.get(c.to_i)
 
          image_path = @myimage.image_folder(@myimage.folder)
-
-         if !image_path.nil? && !@myimage.image_filename.nil?
-           if  File.exist?(image_path + "/" + @myimage.image_filename)
-             #오리지날 파일 삭제
-         	  File.delete(image_path + "/" + @myimage.image_filename)         #original image file      
-
-         	  # 썸네일 삭제
-         	  if File.exist?(image_path + "/thumb/" + @myimage.image_filename)
-         	    File.delete(image_path + "/thumb/" + @myimage.image_filename)         #original image file
-         	  end
-         	  # 프리뷰 삭제
-         	  if File.exist?(image_path + "/preview/" + @myimage.image_filename)
-               File.delete(image_path + "/preview/" + @myimage.image_filename)   #thumbnail image file  	  
-            end
-         	end
-       	end
-
-         @myimage.destroy
+         image_filename = @myimage.id.to_s + "." + @myimage.type
+         
+        if @myimage.type == "pdf" or @myimage.type == "eps"
+          image_thumb_filename = @myimage.id.to_s + ".png"
+        else
+          image_thumb_filename = @myimage.id.to_s + ".jpg"
+        end
+        
+        if  File.exist?(image_path +image_filename)
+          
+         #오리지날 파일 삭제
+          File.delete(image_path + image_filename)         #original image file      
+            puts image_path + image_filename
+          # 썸네일 삭제
+          if File.exist?(image_path + "Thumb/" + image_thumb_filename)
+            File.delete(image_path + "Thumb/" + image_thumb_filename)         #original image file
+          end
+          # 프리뷰 삭제
+          if File.exist?(image_path + "Preview/" + image_thumb_filename)
+           File.delete(image_path + "Preview/" + image_thumb_filename)   #thumbnail image file  	  
+          end
+        end
+        
+          if @myimage.destroy
+            puts_message "destroy success"
+          else
+            puts_message "destroy fail"
+          end
        end
       end
 

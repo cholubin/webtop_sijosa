@@ -16,11 +16,12 @@
 	    <thead class="board_thead">
 	        <tr>
 	            <th class="board_thead" width="60px">번호 </th>
-	            <td class="board_thead" width="100px"><center>아이디</center></td>
-				<td class="board_thead" width="80px"><center>이름</center></td>
-	            <td class="board_thead" width="80px"><center>비밀번호</center></td>
+	            <td class="board_thead" width="60px"><center>아이디</center></td>
+				<td class="board_thead" width="60px"><center>이름</center></td>
 	            <td class="board_thead" width="80px"><center>이메일</center></td>
-	            <td class="board_thead" width="65px"><center>등록일</center></td>
+				<td class="board_thead" width="80px"><center>소속</center></td>
+	            <td class="board_thead" width="100px"><center>연락처</center></td>
+				<td class="board_thead" width="80px"><center>비밀번호</center></td>
 				<td class="board_thead" width="30px"><center class="check_all" style="cursor:hand;">선택</center></td>
 	        </tr>
 	    </thead>
@@ -37,11 +38,12 @@
 			<% @users.each do |user| %>
 	        <tr class="table_b","board_tbody">
 	            <th class="board_tbody" width="60px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><%= @page_num %></th>
-	            <td class="board_tbody" width="100px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.userid %></center></td>
-				<td class="board_tbody" width="80px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.name %></center></td>
-				<td class="board_tbody" width="80px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.password %></center></td>
+	            <td class="board_tbody" width="60px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.userid %></center></td>
+				<td class="board_tbody" width="60px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.name %></center></td>
 	            <td class="board_tbody" width="80px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.email %></center></td>
-	            <td class="board_tbody" width="80px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.created_at.strftime('%Y-%m-%d') %></center></td>	
+				<td class="board_tbody" width="80px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.group1 %><br><%= user.group2 %></center></td>
+	            <td class="board_tbody" width="100px" onClick="location.href='/admin/users/<%= user.id.to_s %>'" style="cursor:hand;"><center><%= user.tel %><br><%= user.mobile %></center></td>	
+				<td class="board_tbody" width="80px" ><center><input type="button" class="init_btn" id="init_<%= user.id %>" value="비밀번호 초기화" style="cursor:pointer;"></center></td>
 				<td class="board_tbody" width="30px"><center><input type="checkbox" class="chk_box" name="chk[<%= user.id %>]"></center></td>
 	        </tr>
 	        <% @page_num -= 1
@@ -80,4 +82,25 @@
 					
 		</table>
 		
-		
+<script language="Javascript">
+$('.init_btn').live("click", function(){
+	var $id = $(this).attr("id").replace("init_","");
+	if(window.confirm("사용자의 비밀번호를 초기화 하시겠습니까?\n비밀번호는 1234 로 강제 초기화 됩니다!")){
+		$.ajax({
+			data:'id='+$id, 
+			dataType:'script', 
+			type:'post', 
+			url:'/admin/users/initialize_password',
+			success: function(request){
+				if(request == "success"){
+					alert("해당 사용자의 비밀번호가 1234로 초기화 되었습니다!");
+				}else{
+					alert("비밀번호 초기화에 실패했습니다.\n관리자에게 문의하여 주십시오!");
+				}
+			}
+		});
+	}else{
+		return false;
+	}
+})
+</script>		

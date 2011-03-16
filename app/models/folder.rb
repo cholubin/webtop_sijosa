@@ -14,6 +14,7 @@ class Folder
   # Attributes ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   property :id,           Serial
   property :name,         String
+  property :origin_name,  String, :default => "photo"
   property :user_id,      String
   
   timestamps :at

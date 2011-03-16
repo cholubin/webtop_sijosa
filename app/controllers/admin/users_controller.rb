@@ -125,4 +125,16 @@ class Admin::UsersController < ApplicationController
     redirect_to(admin_users_url)  
   end
 
+  def initialize_password
+    id = params[:id].to_i
+    
+    user = User.get(id)
+    user.update_password("1234")
+    
+    if user.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end
+  end
 end

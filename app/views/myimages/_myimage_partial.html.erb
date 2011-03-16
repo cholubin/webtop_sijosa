@@ -10,9 +10,9 @@
 				<td>
 					<!-- <템플릿 정보 반복 구간입니다.> -->
 					<table class="template_table">
-						<tr><td><input type="checkbox" name="chk[]" value="<%= myimage.id %>"></td></tr>
+						<tr><td><input type="checkbox" class="chkbox" name="chk[]" value="<%= myimage.id %>"></td></tr>
 						<td class="templatelist" width="180">
-							<a title="<%= myimage.description if !myimage.description.nil? %>" href="/myimages/<%= myimage.id.to_s %>?folder=<%= params[:folder] %>&ext=<%=ext%>&page=<%= params[:page] %>">
+							<a title="<%= myimage.description if !myimage.description.nil? %>" href="/myimages/<%= myimage.id.to_s %>?folder=<%= params[:folder] %>&page=<%= params[:page] %>">
 								<%
 								if params[:folder] != nil and params[:folder] != ""
 									if params[:folder] != "all"
@@ -35,7 +35,7 @@
 								image_name = myimage.name 
 							end  
 							%>
-							<a href="/myimages/<%= myimage.id.to_s %>?folder=<%= params[:folder] %>&ext=<%=ext%>&page=<%= params[:page] %>"><%= image_name %></a>
+							<a href="/myimages/<%= myimage.id.to_s %>?folder=<%= params[:folder] %>&page=<%= params[:page] %>"><%= image_name %></a>
 						</td></tr>
 						<tr> 
 						<td class="templatelist"><font color="white">등록일: <%= myimage.created_at.strftime('%Y-%m-%d') %></font></td></tr>

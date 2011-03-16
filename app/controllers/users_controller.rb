@@ -3,19 +3,6 @@
 class UsersController < ApplicationController
   # GET /users
   # GET /users.xml
-  def index
-    @users = User.search(params[:search], params[:page])
-    @total_count = User.search(params[:search],"").count
-        
-    @menu = "home"
-    @board = "user"
-    @section = "index"
-    
-    render 'user'
-  end
-
-  # GET /users/1
-  # GET /users/1.xml
   def show
 
     @user = User.get(params[:id])
@@ -44,24 +31,6 @@ class UsersController < ApplicationController
     
   end
 
-  # GET /users/1/edit
-  def edit
-    @user = User.get(params[:id])
-        
-    if signed_in? && @user.id == current_user.id
-      @menu = "home"
-      @board = "user"
-      @section = "edit"
-
-      render 'user'
-    else
-      redirect_to '/'
-    end
-    
-  end
-
-  # POST /users
-  # POST /users.xml
   def create
 
     @menu = "home"
@@ -72,6 +41,14 @@ class UsersController < ApplicationController
     @user.name = params[:user][:name]
     @user.password = params[:user][:password]
     @user.email = params[:user][:email]
+    @user.tel = params[:user][:tel]
+    @user.mobile = params[:user][:mobile]
+    @user.group1 = params[:user][:group1]
+    @user.group2 = params[:user][:group2]
+    @user.post_spot = params[:user][:post_spot]
+    @user.zip_code = params[:user][:zip_code]
+    @user.addr1 = params[:user][:addr1]
+    @user.addr2 = params[:user][:addr2]
     
     flash[:notice] = "<ul>"
     
@@ -119,6 +96,25 @@ class UsersController < ApplicationController
 
 
   end
+  # GET /users/1/edit
+  def edit
+    @user = User.get(params[:id])
+        
+    if signed_in? && @user.id == current_user.id
+      @menu = "home"
+      @board = "user"
+      @section = "edit"
+
+      render 'user'
+    else
+      redirect_to '/'
+    end
+    
+  end
+
+  # POST /users
+  # POST /users.xml
+
 
   # PUT /users/1
   # PUT /users/1.xml
@@ -129,36 +125,57 @@ class UsersController < ApplicationController
       @menu = "home"
       @board = "user"
       @section = "edit"
-    
-      if params[:user][:new_password] != ""
+          
 
-        if params[:user][:current_password] == @user.password
-          @user.password = params[:user][:new_password]
-          @user.email = parmas[:user][:email]
+      if @user.has_password?(params[:user][:current_password])
         
+        if params[:user][:new_password] != ""
+
+          @user.update_password(params[:user][:new_password])
+          @user.email = params[:user][:email]
+          @user.tel = params[:user][:tel]
+          @user.mobile = params[:user][:mobile]
+          @user.group1 = params[:user][:group1]
+          @user.group2 = params[:user][:group2]
+          @user.post_spot = params[:user][:post_spot]
+          @user.zip_code = params[:user][:zip_code]
+          @user.addr1 = params[:user][:addr1]
+          @user.addr2 = params[:user][:addr2]                    
+          
           if @user.save
-            render 'users/modificaton_finished'  
+            render 'users/modification_finished'
           else
             flash[:notice] = "오류가 발생했습니다. 다시 시도해주시기 바랍니다."
             render 'user'
           end
 
-        else
-          flash[:notice] = "비밀번호가 틀립니다! 다시입력해 주세요."
-          render 'user'
-        end    
+
+        else  #메일만 수정하는 경우       
+          @user.email = params[:user][:email]
+          
+          @user.tel = params[:user][:tel]
+          @user.mobile = params[:user][:mobile]
+          @user.group1 = params[:user][:group1]
+          @user.group2 = params[:user][:group2]
+          @user.post_spot = params[:user][:post_spot]
+          @user.zip_code = params[:user][:zip_code]
+          @user.addr1 = params[:user][:addr1]
+          @user.addr2 = params[:user][:addr2]                    
+
+          if @user.save
+            render 'users/modification_finished'
+          else
+            flash[:notice] = "오류가 발생했습니다. 다시 시도해주시기 바랍니다."
+            render 'user'
+          end 
+        end
       
-      else  #메일만 수정하는 경우       
-        @user.email = params[:user][:email]
-      
-        if @user.save
-          render 'users/modification_finished'  
-        else
-          flash[:notice] = "오류가 발생했습니다. 다시 시도해주시기 바랍니다."
-          render 'user'
-        end 
-           
+      else
+        flash[:notice] = "현재 비밀번호가 틀립니다!"
+        render 'user'
       end
+      
+      
       
     else
       redirect_to '/'

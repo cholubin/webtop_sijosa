@@ -42,6 +42,7 @@ ActionController::Routing::Routes.draw do |map|
   end 
   
   map.download_image '/download_image' , :controller => "ourimages", :action => 'download_image'    
+  map.download_sharedimage '/download_sharedimage' , :controller => "sharedimages", :action => 'download_image'    
   
   # cappuccino
   map.filelist '/filelist' , :controller => "Cappuccino", :action => 'filelist'    

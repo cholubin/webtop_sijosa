@@ -367,12 +367,13 @@ class OurimagesController < ApplicationController
   def download_image
     myimage_id = params[:id].to_i
     @myimage = Myimage.get(myimage_id)
+    folder = @myimage.folder
     
     user_id = User.get(Myimage.get(myimage_id).user_id).userid
 
     puts_message user_id
-    if File.exists?("#{RAILS_ROOT}" + "/public/user_files/#{user_id}/images/photo/#{@myimage.image_filename}")
-      @myimage_path = "#{RAILS_ROOT}" + "/public/user_files/#{user_id}/images/photo/#{@myimage.image_filename}"
+    if File.exists?("#{RAILS_ROOT}" + "/public/user_files/#{user_id}/images/#{folder}/#{@myimage.id.to_s+"."+@myimage.type}")
+      @myimage_path = "#{RAILS_ROOT}" + "/public/user_files/#{user_id}/images/#{folder}/#{@myimage.id.to_s+"."+@myimage.type}"
   
       if @myimage.type == "pdf"
         @type = "application/" + @myimage.type

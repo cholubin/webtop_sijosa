@@ -90,15 +90,11 @@ function hide_progress() {
 
 	%>	
 	<div align="right" style="padding:0 24 5 0">
-		<font color="white">폴더별 </font> 
 		<font color="white">확장자별 </font> <select name="_ext" id="ext_select" onChange="location.href='/sharedimages?page=<%= page %>&search=<%= search %>&ext='+document.all._ext.value;">
 			<option value="all" <%= "selected" if ext == "all" %>>전체</option>				
-			<option value="pdf" <%= "selected" if ext == "pdf" %>>PDF</option>							
-			<option value="jpg" <%= "selected" if ext == "jpg" %>>JPG</option>
-			<option value="png" <%= "selected" if ext == "png" %>>PNG</option>
-			<option value="eps" <%= "selected" if ext == "eps" %>>EPS</option>						
-			<option value="gif" <%= "selected" if ext == "gif" %>>GIF</option>
-			<option value="tif" <%= "selected" if ext == "tif" %>>TIF</option>			
+			<%@exts.each do |ex| %>
+				<option value="<%= ex.downcase %>" <%= "selected" if ext.downcase == ex.downcase %>><%= ex.upcase %></option>							
+			<%end %>				
 		</select>	
 	</div>
 	
@@ -123,10 +119,10 @@ function hide_progress() {
 				<td>
 					<!-- <템플릿 정보 반복 구간입니다.> -->
 					<table class="template_table">
-						<tr><td><input type="checkbox" class="chkbox" name="chk[]" value="<%= sharedimage.id %>"></td></tr>
+						<tr><td><input type="checkbox" id="chk_<%= sharedimage.id %>" class="chkbox" name="chk[]" value="<%= sharedimage.id %>"></td></tr>
 						<td class="templatelist" width="180">
 							<a title="<%= sharedimage.description if !sharedimage.description.nil? %>" href="/sharedimages/<%= sharedimage.id.to_s %>?ext=<%=ext%>&page=<%= params[:page] %>">
-								<%= image_tag sharedimage.thumb_url, :border=>'0'  %>
+								<img id="img_<%= sharedimage.id %>" src="<%= sharedimage.thumb_url %>">
 							</a>
 						</td>
 						<td width="14">&nbsp;</td></tr>
@@ -164,6 +160,16 @@ end%>
 
 <div>
 <img src="/images/mytemplates/line.jpg">
+</div>
+
+<div style="text-align:right;padding:10 50 0 0;">
+<font color="white">	
+	마이클립아트 <select id="select_copy" style="vertical-align:middle;">
+		<%Folder.all(:user_id => current_user.id).each do |f| %>
+		<option value="<%= f.name %>"><%= f.origin_name %></option>
+		<%end %>
+	</select>로 <img id="btn_copy" src="/images/sharedimage/copy.jpg" style="vertical-align:middle;cursor:pointer;"> 
+</font>
 </div>
 			<table width="776">
 				<tr height="30">
@@ -247,6 +253,51 @@ end%>
 			})
 
 			$(this).attr("checked", false);
+		}
+	})
+	
+	$('#btn_copy').live("click", function(){
+		var $folder = $('#select_copy :selected').val();
+		if( $(':checkbox:checked').length > 0 ){
+			
+			$(':checkbox:checked').each(function(){
+				var $chkbox_id = $(this);
+				var $image_id = $(this).val();
+				var $image_src_origin = $('#img_'+ $image_id).attr("src");
+				$('#img_'+$image_id).fadeOut("slow", function(){
+					// $(this).attr("src","/images/admin/spin.gif");
+					$.ajax({
+						data:'folder='+$folder+'&image_id='+$image_id, 
+						dataType:'script', 
+						type:'post', 
+						url:'/sharedimages/copy_to_myclipart',
+						success: function(request){
+							if(request == "success"){
+								$('#img_'+$image_id).fadeIn("slow", function(){
+									$(this).attr("src",$image_src_origin);
+									$chkbox_id.attr("checked", false);
+									
+									if( $(':checkbox:checked').length == 0 ){
+										alert("복사가 완료되었습니다!");
+									}
+								});
+							}else{
+								alert("파일복사에 실패했습니다!\n관리자에게 문의해주세요!")
+								$('#img_'+$image_id).attr("src",$image_src_origin);
+							}
+						}
+					});
+
+
+				});
+				
+				
+			})
+			
+			
+		}else{
+			alert("먼저 복사할 이미지를 선택해주세요!");
+			return false;
 		}
 	})
 </script>
