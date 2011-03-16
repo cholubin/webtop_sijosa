@@ -32,7 +32,7 @@
 				else
 					@temp_page = params[:page].to_i - 1
 				end
-				@page_num = @total_count - (10 * @temp_page) %>
+				@page_num = @total_count - (12 * @temp_page) %>
 				
 
 			<% @users.each do |user| %>
@@ -59,10 +59,10 @@
 		<!-- dm-pager Pagination -->
 		<table width="730" >
 			<tr>
-				<td width="230">&nbsp;</td>
-				<td width="350" style="align:center">
+				<td width="30">&nbsp;</td>
+				<td width="550" style="align:left">
 					<div class="pager">
-					<%=User.search(params[:search], params[:page]).pager.to_html "/admin/users?search=#{params[:search]}" %>
+					<%=@users.pager.to_html "/admin/users?keyword=#{params[:keyword]}&search=#{params[:search]}" %>
 					</div>
 				</td>
 				<td width="150" align="right">
@@ -75,7 +75,14 @@
 			<tr height="10">
 				<td align="center" colspan="3">
 						<% form_tag request.path + "?page=#{params[:page]}", :method => 'get' do %>								
-					    <%= text_field_tag :search, params[:search] %><%= image_submit_tag("/images/board/search.jpg", :align => "absmiddle") %>	
+					    <select name="keyword">
+					    	<option value="userid" 	<%="selected" if params[:keyword] == "userid"%>	>아이디</option>
+							<option value="name" 	<%="selected" if params[:keyword] == "name"	%>	>이름</option>
+							<option value="email" 	<%="selected" if params[:keyword] == "email"%> 	>이메일</option>
+							<option value="group" 	<%="selected" if params[:keyword] == "group"%> 	>소속</option>
+							<option value="tel" 	<%="selected" if params[:keyword] == "tel"	%> 	>연락처</option>
+					    </select>
+						<%= text_field_tag :search, params[:search] %><%= image_submit_tag("/images/board/search.jpg", :align => "absmiddle") %>	
 						<% end %>
 				</td>
 			</tr>

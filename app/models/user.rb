@@ -86,7 +86,23 @@ class User
   
   
   def self.search(search, page)
-      User.all(:name.like => "%#{search}%").page :page => page, :per_page => 10
+      (User.all(:name.like => "%#{search}%") | User.all(:userid.like => "%#{search}%")).page :page => page, :per_page => 10
+  end
+  
+  def self.search_admin(keyword,search, page)
+    if keyword == "group"
+      (User.all(:group1.like => "%#{search}%") | User.all(:group2.like => "%#{search}%")).page :page => page, :per_page => 12
+    elsif keyword == "tel"
+      (User.all(:tel.like => "%#{search}%") | User.all(:mobile.like => "%#{search}%")).page :page => page, :per_page => 12
+    elsif keyword == "name"
+      User.all(:name.like => "%#{search}%").page :page => page, :per_page => 12
+    elsif keyword == "userid"
+      User.all(:userid.like => "%#{search}%").page :page => page, :per_page => 12
+    elsif keyword == "email"
+      User.all(:email.like => "%#{search}%").page :page => page, :per_page => 12    
+    else
+      (User.all(:name.like => "%#{search}%") | User.all(:userid.like => "%#{search}%")).page :page => page, :per_page => 12
+    end
   end
   
   def self.authenticate(userid, submitted_password)

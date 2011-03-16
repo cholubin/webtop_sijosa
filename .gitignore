@@ -9,3 +9,4 @@ test/*
 log/*
 db/*
 config/environment.rb
+public/sharedimage/*

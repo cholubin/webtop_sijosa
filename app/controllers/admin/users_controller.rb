@@ -6,8 +6,8 @@ class Admin::UsersController < ApplicationController
   # GET /users
   # GET /users.xml
   def index
-    @users = User.search(params[:search], params[:page])
-    @total_count = User.search(params[:search],"").count
+    @users = User.search_admin(params[:keyword], params[:search], params[:page])
+    @total_count = User.search_admin(params[:keyword], params[:search],"").count
         
     @menu = "user"
     @board = "user"
