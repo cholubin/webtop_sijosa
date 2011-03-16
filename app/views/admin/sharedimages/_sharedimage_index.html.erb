@@ -71,10 +71,14 @@
 				end
 				@page_num = @total_count - (12 * @temp_page) %>
 				
-			<% @sharedimages.each do |sharedimage| 
-			   cate_name = Category.get(sharedimage.category).name
-			   subcate_name = Subcategory.get(sharedimage.subcategory).name
-			   cate_name_string = cate_name + "/" + subcate_name
+			<% 	@sharedimages.each do |sharedimage| 
+			   		cate_name = Category.get(sharedimage.category).name
+			   		if sharedimage.subcategory != nil and sharedimage.subcategory != ""
+			   			subcate_name = "/" + Subcategory.get(sharedimage.subcategory).name
+					else
+						subcate_name = ""
+					end
+			   		cate_name_string = cate_name + "/" + subcate_name
 			%>
 	        <tr class="table_b","board_tbody">
 	            <th class="board_tbody" width="60px"><%= @page_num %></th>
