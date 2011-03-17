@@ -253,6 +253,18 @@ class Admin::ImgcategoriesController < ApplicationController
         puts_message "서브카테고리들 삭제 완료!"
         if @category.destroy
           puts_message "카테고리 삭제 완료!"
+          
+          @sharedimages = Sharedimage.all(:category => category_id)
+          @sharedimages.each do |shared|
+            if Category.first(:gubun => "image") != nil
+              shared.category = Category.first(:gubun => "image").id
+              shared.subcategory = nil
+              shared.save
+            else
+              shared.destroy
+            end
+          end
+          puts_message "해당카테고리에 속하는 모든 공유이미지의 카테고리 변경"
         end
       end
     else

@@ -157,38 +157,43 @@ $('.change_btn').live("mouseover", function(){
 	}else{
 		$(this).attr("value","공개로 변경");
 	}
+	$(this).css("color", "blue");
 	
 })
 
 $('.change_btn').live("mouseout", function(){
 	$(this).attr("value",$(this).attr("origin_value"));	
+	$(this).css("color", "black");
 })
 
 $('.change_btn').live("click", function(){
 	var $id = $(this).attr("id").replace("change_","");
 	
-	if(window.confirm("공개상태를 변경하시겠습니까?")){
-		$.ajax({
-			data:'id='+ $id, 
-			dataType:'script', 
-			type:'post', 
-			url:'/admin/sharedimages/change_open_status',
-			success: function(request){
-				if(request == "success"){
-					if($('#change_'+$id).attr("origin_value") == "공개"){
-						$('#change_'+$id).attr("origin_value","비공개");
-						$('#change_'+$id).attr("value","비공개");
-					}else{
-						$('#change_'+$id).attr("origin_value","공개");
-						$('#change_'+$id).attr("value","공개");
-					}
+	$.ajax({
+		data:'id='+ $id, 
+		dataType:'script', 
+		type:'post', 
+		url:'/admin/sharedimages/change_open_status',
+		success: function(request){
+			if(request == "success"){
+				if($('#change_'+$id).attr("origin_value") == "공개"){
+					$('#change_'+$id).fadeOut("slow", function(){
+						$(this).attr("origin_value","비공개");
+						$(this).attr("value","비공개");
+					}).fadeIn("slow");
+					
 				}else{
-					alert("상태변경에 실패했습니다!\n관리자에게 문의하여 주십시오!");
+					$('#change_'+$id).fadeOut("slow", function(){
+						$(this).attr("origin_value","공개");
+						$(this).attr("value","공개");
+					}).fadeIn("slow");
 				}
-				
+			}else{
+				alert("상태변경에 실패했습니다!\n관리자에게 문의하여 주십시오!");
 			}
-		});
-	}else{return false;}
+			
+		}
+	});
 })
 
 
