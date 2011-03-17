@@ -23,7 +23,7 @@ class Sharedimage
   
   property :image_thumb_filename,       String
   property :category,                   Integer
-  property :subcategory,                   Integer
+  property :subcategory,                Integer
   
   property :open_fl,                    Boolean, :default => true
 

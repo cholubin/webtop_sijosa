@@ -10,3 +10,4 @@ log/*
 db/*
 config/environment.rb
 public/sharedimage/*
+public/pdf_admin/*
