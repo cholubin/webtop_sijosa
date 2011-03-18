@@ -1,1 +1,5 @@
-<%= collection_select(:sharedimage, :subcategory, subcategories, :id, :name,{:selected   => "1"}) %>
+<select class="select_subcategory" id="select_subcategory_<%= @sharedimage.id %>">
+	<% @subcategories.each do |subcat| %>
+	<option value="<%= subcat.id %>"><%= subcat.name %></option>
+	<%end %>
+</select>

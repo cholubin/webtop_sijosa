@@ -96,11 +96,13 @@
 							<option value="<%= cat.id %>" <%= "selected" if sharedimage.category == cat.id %>><%= cat.name %></option>
 							<%end %>
 						</select><br>
+						<div id="subcategories_<%= sharedimage.id %>">
 						<select class="select_subcategory" id="select_subcategory_<%= sharedimage.id %>">
 							<% Subcategory.all(:category_id => sharedimage.category, :order => [:priority]).each do |subcat| %>
-							<option value="<%= subcat.id %>"><%= subcat.name %></option>
+							<option value="<%= subcat.id %>" <%= "selected" if sharedimage.subcategory == subcat.id %>><%= subcat.name %></option>
 							<%end %>
 						</select>
+						</div>
 					</center>
 				</td>
 				<% 
@@ -242,6 +244,31 @@ $('.subject').live("click", function(){
 	
 	$(this).attr("class","subject_edit");
 	$('#input_'+$id).focus();
+})
+
+
+$('.select_category').live("change",function(){
+	var $id = $(this).attr("id").replace("select_category_","");
+	var $value = $(this,'option:selected').val();
+	
+	$.ajax({
+		data:'id='+ $id + '&value=' + $value, 
+		dataType:'script', 
+		type:'post', 
+		url:'/admin/sharedimages/category_change_update'
+	});
+})
+
+$('.select_subcategory').live("change",function(){
+	var $id = $(this).attr("id").replace("select_subcategory_","");
+	var $value = $(this,'option:selected').val();
+	
+	$.ajax({
+		data:'id='+ $id + '&value=' + $value, 
+		dataType:'script', 
+		type:'post', 
+		url:'/admin/sharedimages/subcategory_change_update'
+	});
 })
 
 </script>

@@ -356,6 +356,41 @@ class Admin::SharedimagesController < ApplicationController
         end
     end
   
+  def category_change_update
+    @sharedimage = Sharedimage.get(params[:id].to_i)
+    @sharedimage.category = params[:value].to_i
+    
+    category = Category.get(params[:value].to_i)
+    @subcategories = category.subcategories.all(:order => :priority)
+    
+    @sharedimage.subcategory = category.subcategories.first(:order => :priority).id
+    
+    if @sharedimage.save
+      
+      puts_message @subcategories.count.to_s
+      # puts subcategories.inspect
+
+      render :update do |page|
+        page.replace_html 'subcategories_'+ params[:id], :partial => 'subcategories', :object => @subcategories, :object => @sharedimage
+      end
+    else
+      puts_message @sharedimage.errors.to_s
+      render :text => "fail"
+    end
+    
+  end
+  
+  def subcategory_change_update
+    sharedimage = Sharedimage.get(params[:id].to_i)
+    sharedimage.subcategory = params[:value].to_i
+    
+    if sharedimage.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end 
+  end
+  
   def change_open_status
     id = params[:id]
     sharedimage = Sharedimage.get(id)

@@ -105,7 +105,7 @@ class Admin::MyimagesController < ApplicationController
     MyimageUploader.store_dir = @myimage.image_admin_path
     
     # 이미지 업로드 처리 ===============================================================================
-    if params[:myimage][:image_file] != nil
+    if params[:myimage][:image_file] != nil and params[:myimage][:image_file] != ""
 
       @myimage.image_file = params[:myimage][:image_file]      
       @temp_filename = sanitize_filename(params[:myimage][:image_file].original_filename)
@@ -164,8 +164,7 @@ class Admin::MyimagesController < ApplicationController
 
     else
           flash[:notice] = '이미지는 반드시 선택하셔야 합니다.'      
-          
-          render '/admin/temps/temp'
+          redirect_to "/admin/myimages/new"
     end
       
       # MyimageUploader.store_dir = @myimage.image_path
