@@ -353,8 +353,13 @@ class Admin::MyimagesController < ApplicationController
     @menu = "myimage"
     @board = "myimage"
     @section = "index"
-
-    redirect_to '/admin/myimages'
+    
+    if params[:gb] != nil and params[:gb] = ""
+      redirect_to '/admin/myimages?gb=admin'
+    else
+      redirect_to '/admin/myimages'
+    end
+    
    end
      
 end
