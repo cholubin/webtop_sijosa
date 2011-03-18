@@ -110,30 +110,15 @@ class Admin::MyimagesController < ApplicationController
       @myimage.image_file = params[:myimage][:image_file]      
       @temp_filename = sanitize_filename(params[:myimage][:image_file].original_filename)
 
-      # 중복파일명 처리 ===============================================================================
-      while File.exist?(image_path + "/" + @temp_filename) 
-        ext_name = File.extname(@temp_filename)
-        file_name = @temp_filename.gsub(ext_name,'')
-
-        @temp_filename = file_name + "_1" + ext_name
-        @myimage.image_filename = @temp_filename
-      end 
 
       ext_name = File.extname(@temp_filename)      
       file_name = @temp_filename.gsub(ext_name,'')
-      
       #검색시 필터로 사용할 타입 설정
-      @myimage.type = ext_name.gsub(".",'').downcase 
+      @myimage.type = ext_name.gsub(".",'').downcase
        
       @myimage.image_filename = @temp_filename
       
-      if ext_name == ".eps" or ext_name == ".pdf"
-        @myimage.image_thumb_filename = file_name + ".png"
-      else
-        @myimage.image_thumb_filename = file_name + ".jpg"
-      end
-       # 중복파일명 처리 ===============================================================================
-
+      
       @myimage.image_filename_encoded = @myimage.image_file.filename
 
       if params[:myimage][:name] == ""
@@ -142,21 +127,30 @@ class Admin::MyimagesController < ApplicationController
 
       
       if @myimage.save  
-         # image filename renaming ======================================================================
-
-         ext_name_up = File.extname(@myimage.image_filename_encoded)
-         file_name_up = @myimage.image_filename_encoded.gsub(ext_name_up,'')
+         if @myimage.type == "eps" or @myimage.type == "pdf"
+           @myimage.image_thumb_filename = @myimage.id.to_s + ".png"
+         else
+           @myimage.image_thumb_filename = @myimage.id.to_s + ".jpg"
+         end
          
-        if (file_name_up + ext_name_up)
-          if  File.exist?(image_path + "/" + file_name_up + ext_name_up)
-          	image_folder = "#{RAILS_ROOT}" + "/public/basic_photo"
-        	  if ext_name_up == ".eps" or ext_name_up == ".pdf"
-        	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_folder + "/" + @myimage.image_filename_encoded} #{image_folder + "/preview/" + file_name_up + ".png"} 0.5 #{image_folder + "/thumb/" + file_name_up + ".png"} 128]            	  
-        	  else
-        	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{image_folder + "/" + @myimage.image_filename_encoded} #{image_folder + "/preview/" + file_name_up + ".jpg"} 0.5 #{image_folder + "/thumb/" + file_name_up + ".jpg"} 128]            	  
-        	  end
-          end
-        end      
+          @myimage.save  
+            # image filename renaming ======================================================================
+
+            # ext_name_up = File.extname(@myimage.image_filename_encoded)
+            # file_name_up = @myimage.image_filename_encoded.gsub(ext_name_up,'')
+
+           basic_folder = "#{RAILS_ROOT}" + "/public/basic_photo/"
+           
+           if  File.exist?(basic_folder +  @myimage.id.to_s + "." + @myimage.type)
+
+           	  target_path = basic_folder + @myimage.id.to_s + "." + @myimage.type
+
+           	  if @myimage.type == "eps" or @myimage.type == "pdf"
+           	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{target_path} #{basic_folder + "/preview/" + @myimage.id.to_s + ".png"} 0.5 #{basic_folder + "/thumb/" + @myimage.id.to_s + ".png"} 128]            	  
+           	  else
+           	    puts %x[#{RAILS_ROOT}"/lib/thumbup" #{target_path} #{basic_folder + "/preview/" + @myimage.id.to_s + ".jpg"} 0.5 #{basic_folder + "/thumb/" + @myimage.id.to_s + ".jpg"} 128]            	  
+           	  end
+           end 
          # image filename renaming ======================================================================
          @myimages = Myimage.all(:common => true, :order => [:created_at.desc]).search_user(params[:search], params[:page])   
          @total_count = @myimages.count

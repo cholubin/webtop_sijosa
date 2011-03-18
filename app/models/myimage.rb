@@ -62,7 +62,7 @@ class Myimage
   end
   
   def admin_url
-    "#{HOSTING_URL}" + "basic_photo/#{self.image_filename_encoded}"
+    "#{HOSTING_URL}" + "basic_photo/#{self.id.to_s}.#{self.type}"
   end
   
 
@@ -86,7 +86,7 @@ class Myimage
       ext_name = ".jpg"
     end
       
-    "#{HOSTING_URL}" + "basic_photo/Thumb/#{filename+ext_name}"
+    "#{HOSTING_URL}" + "basic_photo/Thumb/#{self.id.to_s+ext_name}"
     
   end
   
@@ -106,7 +106,7 @@ class Myimage
       ext_name = ".jpg"
     end
     
-    "#{HOSTING_URL}" + "basic_photo/Preview/#{filename+ext_name}"
+    "#{HOSTING_URL}" + "basic_photo/Preview/#{self.id.to_s+ext_name}"
   end
   
   def make_thumb_folder(folder)
@@ -185,6 +185,7 @@ class Myimage
     FileUtils.chmod 0777, dir
     return dir 
   end
+
 
       
 end

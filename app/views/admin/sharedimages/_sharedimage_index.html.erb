@@ -87,8 +87,22 @@
 					<a href="/admin/sharedimages/<%= sharedimage.id.to_s%>?search=<%=params[:search]%>&page=<%=params[:page]%>"><%=image_tag sharedimage.thumb_url %></a>
 					</center>
 				</td>
-				<td class="board_tbody" width="80px"><center><%= sharedimage.name %></center></td>
-				<td class="board_tbody" width="180px"><center><%= cate_name_string %></center></td>
+				<td class="board_tbody" width="80px"><center><span class="subject" id="subject_<%= sharedimage.id %>" style="cursor:pointer;"><%= sharedimage.name %></span></center></td>
+				<td class="board_tbody" width="180px">
+					<!-- <center><%= cate_name_string %></center> -->
+					<center>
+						<select class="select_category" id="select_category_<%= sharedimage.id %>">
+							<% Category.all(:gubun => "image", :order => [:priority]).each do |cat| %>
+							<option value="<%= cat.id %>" <%= "selected" if sharedimage.category == cat.id %>><%= cat.name %></option>
+							<%end %>
+						</select><br>
+						<select class="select_subcategory" id="select_subcategory_<%= sharedimage.id %>">
+							<% Subcategory.all(:category_id => sharedimage.category, :order => [:priority]).each do |subcat| %>
+							<option value="<%= subcat.id %>"><%= subcat.name %></option>
+							<%end %>
+						</select>
+					</center>
+				</td>
 				<% 
 					if sharedimage.open_fl == true 
 						shared_status = "공개" 
@@ -166,6 +180,13 @@ $('.change_btn').live("mouseout", function(){
 	$(this).css("color", "black");
 })
 
+$('.subject_input').live("keydown", function(event){
+	if(event.keyCode == 13){
+		$('.subject_input').blur();
+		return false;
+	}
+})
+
 $('.change_btn').live("click", function(){
 	var $id = $(this).attr("id").replace("change_","");
 	
@@ -195,6 +216,32 @@ $('.change_btn').live("click", function(){
 		}
 	});
 })
+$('.subject_input').live("blur", function(){
+	var $id = $(this).attr("id").replace("input_","");
+	var $str = $(this).val();
+	
+	$.ajax({
+		data:'id='+ $id + '&str=' + $str, 
+		dataType:'script', 
+		type:'post', 
+		url:'/admin/sharedimages/change_subject',
+		success: function(request){
+			if(request == "success"){
+				$('#subject_'+$id).text($str);
+				$('#subject_'+$id).attr("class","subject");
+			}else{
+				alert("실패!");
+			}
+		}
+	});
+})
 
+$('.subject').live("click", function(){
+	var $id = $(this).attr("id").replace("subject_","");
+	$(this).html("<input type='text' class='subject_input' id='"+"input_" + $id +"' value='"+$(this).text()+"'>");
+	
+	$(this).attr("class","subject_edit");
+	$('#input_'+$id).focus();
+})
 
 </script>

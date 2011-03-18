@@ -368,4 +368,17 @@ class Admin::SharedimagesController < ApplicationController
       render :text => "fail"
     end
   end
+  
+  def change_subject
+    id = params[:id]
+    sharedimage = Sharedimage.get(id)
+    sharedimage.name = params[:str]
+    
+    if sharedimage.save
+      render :text => "success"
+    else
+      render :text => "fail"
+    end
+    
+  end
 end
