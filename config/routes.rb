@@ -24,21 +24,18 @@ ActionController::Routing::Routes.draw do |map|
   
   map.root :controller => 'Pages', :action => 'home'
   
-  # map.resources :pages
   map.resources :subcategories, :categories
   map.resources :categories, :has_many => :subcategories
   map.resources :notices
   map.resources :freeboards, :users
   map.resources :users, :has_many => :freeboards
   map.resources :faqs
-  # map.resources :articles
 
   map.resources :mytemplates
-  # map.resources :mytemplates, :path_prefix => '/admin'
-  # map.resources :mytemplates, :only => [:index, :show]
+  map.resources :ebooks
 
   map.namespace :admin do |admin|
-      admin.resources :folders, :mypdfs, :users, :temps, :categories, :imgcategories, :notices, :freeboards, :myadmins, :faqs, :mytemplates, :myimages, :sharedimages
+      admin.resources :folders, :mypdfs, :users, :temps, :categories, :imgcategories, :ebookcategories, :notices, :freeboards, :myadmins, :faqs, :mytemplates, :myimages, :sharedimages, :ebooks
   end 
   
   map.download_image '/download_image' , :controller => "ourimages", :action => 'download_image'    

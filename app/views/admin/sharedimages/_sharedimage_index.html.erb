@@ -1,6 +1,6 @@
 <%= stylesheet_link_tag '/css/paginate.css' %>
 <div id="feature_wrapper">
-		<p1>사용자들에게 공개하는 이미지들 입니다.</p1>
+		<p1>사용자들에게 공개하는 이북 입니다.</p1>
 		<% if ! flash[:notice].nil? %>
 			<br>
 			<span class="error_message_small"><%= flash[:notice].to_s %></span>
@@ -14,43 +14,14 @@
 			<% @categories.each do |cat| %>
 			<option value="<%= cat.id%>" <%= "selected" if params[:cate].to_i == cat.id %>><%= cat.name %></option>
 			<%end %>
-			</select><input type="button" value="카테고리관리" style="cursor:pointer;" onClick="location.href='/admin/imgcategories'">
+			<!-- </select><input type="button" value="카테고리관리" style="cursor:pointer;" onClick="location.href='/admin/imgcategories'"> -->
+			</select><input id="btn_category" type="button" value="카테고리관리" style="cursor:pointer;">
 	  <p/>
 	
 	
 	<% form_tag :action => :deleteSelection, :method => 'post' do %>			
 	<input type="hidden" id="all_checked" value="false">
-	<% 	
-		
-	   	if params[:ext] == nil or params[:ext] == "" or params[:ext] == "all"
-			ext = "all"
-		else
-			ext = params[:ext]
-		end
 
-		if params[:share] != nil and params[:share] != "" and params[:share] != "all"
-			share = params[:share]
-		else
-			share = "all"
-		end
-	%>
-
-	<div align="right" style="padding:0 175 5 0">
-		공개여부: <select name="_share" onChange="location.href='/admin/sharedimages?cate=<%= params[:cate] %>&ext=<%= params[:ext] %>&share='+document.all._share.value;">
-			<option value="all" <%= "selected" if share == "all" %>>전체</option>				
-			<option value="y" <%= "selected" if share == "y" %>>공개</option>				
-			<option value="n" <%= "selected" if share == "n" %>>비공개</option>				
-		</select>
-		
-		확장자별: <select name="_ext" onChange="location.href='/admin/sharedimages?share=<%= params[:share] %>&ext='+document.all._ext.value;">
-			<option value="all" <%= "selected" if ext == "all" %>>전체</option>				
-			<%@exts.each do |ex| %>
-				<option value="<%= ex.downcase %>" <%= "selected" if ext.downcase == ex.downcase %>><%= ex.upcase %></option>							
-			<%end %>
-		</select>	
-	</div>
-	
-	
 	<table class="board_table">
 	    <thead class="board_thead">
 	        <tr>
@@ -159,7 +130,8 @@
 					
 		</table>
 		
-
+<div id="category_section">
+</div>
 
 <script language="Javascript">
 $('#category_select').live("change", function(){
@@ -271,4 +243,10 @@ $('.select_subcategory').live("change",function(){
 	});
 })
 
+$('#btn_category').live("click", function(){
+	$('#category_section').load("/admin/imgcategories", function(){
+		$('#category_section #admincontents_wrapper #admin #admin_top').remove();
+		
+	});
+})
 </script>
