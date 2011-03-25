@@ -10,14 +10,14 @@ class Admin::EbooksController < ApplicationController
       @board = "ebook"
       @section = "index"
 
+      @ebooks = Ebook.all()
+      
       if params[:cate] != nil and params[:cate] != "" and params[:cate] != "all"
         if params[:subcate] != nil and params[:subcate] != ""
           @ebooks = @ebooks.all(:category => params[:cate].to_i, :subcategory => params[:subcate].to_i)
         else
           @ebooks = @ebooks.all(:category => params[:cate].to_i)
         end
-      else
-        @ebooks = Ebook.all
       end
       
       

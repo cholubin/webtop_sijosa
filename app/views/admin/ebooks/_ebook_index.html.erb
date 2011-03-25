@@ -56,7 +56,7 @@
 	            <th class="board_tbody" width="60px"><%= @page_num %></th>
 	            <td class="board_tbody" width="1px">
 					<center>
-					<a href="/admin/ebooks/<%= ebook.id.to_s%>?search=<%=params[:search]%>&page=<%=params[:page]%>"><%=image_tag ebook.thumb_url %></a>
+					<img class="ebook_pop" id="img_<%= ebook.id %>" src="<%= ebook.thumb_url %>" style="cursor:pointer;">
 					</center>
 				</td>
 				<td class="board_tbody" width="80px"><center><span class="subject" id="subject_<%= ebook.id %>" style="cursor:pointer;"><%= ebook.name %></span></center></td>
@@ -213,4 +213,11 @@ $('#btn_category').live("click", function(){
 		$('#category_section').attr("status","off");
 	}
 })
+
+$('.ebook_pop').live("click", function(){
+	var $id = $(this).attr("id").replace("img_","");
+	var openNewWindow = window.open("about:blank");
+	openNewWindow.location.href = "/ebook/"+$id + "/index.html"
+})
+
 </script>
