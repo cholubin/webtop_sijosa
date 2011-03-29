@@ -173,7 +173,7 @@ $(document).ready(function(){
 	   update: function(event, ui) { 
 		<%= remote_function(:url  => {:action => "subcategory_order_update"},:with => "'category_id=#{category.id.to_s}&subcategory_id='+result_category_#{category.id.to_s}()") %>
 		}
-	}).addTouch();
+	});
 
 	 $(function() {
 	    $("#sortables_<%= category.id.to_s %>").sortable({axis: 'y' });

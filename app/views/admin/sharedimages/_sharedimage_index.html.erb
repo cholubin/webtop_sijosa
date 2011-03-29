@@ -269,6 +269,9 @@ $('#btn_category').live("click", function(){
 			type:'post', 
 			url:'/admin/sharedimages/category_update'
 		});
+		
+		window.status = "카테고리 정보가 업데이트 되었습니다!"
+		setTimeout(function(){window.status=""}, 3000);
 	}
 })
 </script>
