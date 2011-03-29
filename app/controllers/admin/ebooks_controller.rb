@@ -130,18 +130,18 @@ class Admin::EbooksController < ApplicationController
          
          system "cd #{ebook.ebook_path}; unzip #{ebook.zipfile}"
          # puts file
-         # original_filename = (ebook.original_filename.force_encoding("UTF-8"))
-         # 
-         # Zip::ZipFile.open(file) { |zip_file|
-         #   zip_file.each{ |f| 
-         #     f_path = File.join(destination, f.name.force_encoding("UTF-8"))
-         #     puts_message "here:::" +  destination
-         #     puts_message "here:::" +  f.name
-         #     # f_path = f_path.gsub(/\/{1}[\sa-zA-Z0-9\w]*\.mBook/,"")
-         # 
-         #     zip_file.extract(f, f_path) unless File.exist?(f_path)
-         #   }
-         # }
+          original_filename = (ebook.original_filename.force_encoding("UTF-8"))
+          
+          Zip::ZipFile.open(file) { |zip_file|
+            zip_file.each{ |f| 
+              f_path = File.join(destination, f.name.force_encoding("UTF-8"))
+              # puts_message "here:::" +  destination
+              # puts_message "here:::" +  f.name
+              f_path = f_path.gsub(/\/{1}[\sa-zA-Z0-9\w]*\.mBook/,"")
+          
+              zip_file.extract(f, f_path) unless File.exist?(f_path)
+            }
+          }
 
          FileUtils.rm_rf (destination + "/__MACOSX")
          system "cp #{ebook.ebook_path}/images/page1_thumbnail.jpg #{ebook.path}/Thumb/#{ebook.id.to_s}.jpg"
@@ -322,7 +322,7 @@ class Admin::EbooksController < ApplicationController
 
    def update_subcategories
         categories = Category.get(params[:category_id].to_i)
-        subcategories = categories.subcategories.all(:order => :priority)
+        subcategories = categories.subcategories.all(:gubun => "ebook", :order => :priority)
 
         puts_message subcategories.count.to_s
         # puts subcategories.inspect
@@ -337,9 +337,9 @@ class Admin::EbooksController < ApplicationController
     @ebook.category = params[:value].to_i
     
     category = Category.get(params[:value].to_i)
-    @subcategories = category.subcategories.all(:order => :priority)
+    @subcategories = category.subcategories.all(:gubun => "ebook", :order => :priority)
     
-    @ebook.subcategory = category.subcategories.first(:order => :priority).id
+    @ebook.subcategory = category.subcategories.first(:gubun => "ebook", :order => :priority).id
     
     if @ebook.save
       

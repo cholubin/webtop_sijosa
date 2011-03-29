@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+	<Version>1.0</Version>
+	<BookTitle>M25</BookTitle>
+	<Author>M25</Author>
+	<CoverImage>cover_image.png</CoverImage>
+	<CoverThumbnail>thumb.jpg</CoverThumbnail>
+	<NumberOfPages>36</NumberOfPages>
+	<PageSize>1024,1339</PageSize>
+	<Sections>
+		<Section>
+			<SectionTitle>Cover</SectionTitle>
+			<SectionFolder>Cover.section</SectionFolder>
+			<ShowInTOC>YES</ShowInTOC>
+			<NumberOfPages>1</NumberOfPages>
+		</Section>
+		<Section>
+			<SectionTitle>Contents</SectionTitle>
+			<SectionFolder>Contents.section</SectionFolder>
+			<ShowInTOC>YES</ShowInTOC>
+			<NumberOfPages>8</NumberOfPages>
+		</Section>
+		<Section>
+			<SectionTitle>Interview</SectionTitle>
+			<SectionFolder>Interview.section</SectionFolder>
+			<ShowInTOC>YES</ShowInTOC>
+			<NumberOfPages>8</NumberOfPages>
+		</Section>
+		<Section>
+			<SectionTitle>Motor</SectionTitle>
+			<SectionFolder>Motor.section</SectionFolder>
+			<ShowInTOC>YES</ShowInTOC>
+			<NumberOfPages>10</NumberOfPages>
+		</Section>
+		<Section>
+			<SectionTitle>Culture</SectionTitle>
+			<SectionFolder>Culture.section</SectionFolder>
+			<ShowInTOC>YES</ShowInTOC>
+			<NumberOfPages>9</NumberOfPages>
+		</Section>
+	</Sections>
+</xml>
