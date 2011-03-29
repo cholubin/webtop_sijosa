@@ -110,7 +110,7 @@ function hide_progress() {
 				<td>
 					<!-- <템플릿 정보 반복 구간입니다.> -->
 					<table class="template_table">
-						<tr><td><input type="checkbox" id="chk_<%= ebook.id %>" class="chkbox" name="chk[]" value="<%= ebook.id %>"></td></tr>
+						<tr height="20"><td><!-- <input type="checkbox" id="chk_<%= ebook.id %>" class="chkbox" name="chk[]" value="<%= ebook.id %>"> --></td></tr>
 						<td class="templatelist" width="180">
 							<a title="<%= ebook.description if !ebook.description.nil? %>" >
 								<img class="ebook_pop" id="img_<%= ebook.id %>" src="<%= ebook.thumb_url %>" style="cursor:pointer;">
