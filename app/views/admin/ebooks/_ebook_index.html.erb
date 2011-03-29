@@ -64,16 +64,18 @@
 					<!-- <center><%= cate_name_string %></center> -->
 					<center>
 						<select class="select_category" id="select_category_<%= ebook.id %>">
-							<% Category.all(:gubun => "image", :order => [:priority]).each do |cat| %>
+							<% Category.all(:gubun => "ebook", :order => [:priority]).each do |cat| %>
 							<option value="<%= cat.id %>" <%= "selected" if ebook.category == cat.id %>><%= cat.name %></option>
 							<%end %>
 						</select><br>
 						<div id="subcategories_<%= ebook.id %>">
+						<%if Subcategory.all(:category_id => ebook.category).count > 0 %>
 						<select class="select_subcategory" id="select_subcategory_<%= ebook.id %>">
 							<% Subcategory.all(:category_id => ebook.category, :order => [:priority]).each do |subcat| %>
 							<option value="<%= subcat.id %>" <%= "selected" if ebook.subcategory == subcat.id %>><%= subcat.name %></option>
 							<%end %>
 						</select>
+						<%end %>
 						</div>
 					</center>
 				</td>

@@ -298,7 +298,6 @@ class Admin::EbooksController < ApplicationController
         @ebook = Ebook.get(chk[0].to_i)
         
         begin         
-          
           if File.exist?(@ebook.ebook_path + ".zip")
         	  File.delete(@ebook.ebook_path + ".zip")         #original image file
             File.delete(@ebook.path + "/Thumb/" + @ebook.id.to_s + ".jpg")   #thumbnail image file  	  
@@ -340,7 +339,11 @@ class Admin::EbooksController < ApplicationController
     category = Category.get(params[:value].to_i)
     @subcategories = category.subcategories.all(:gubun => "ebook", :order => :priority)
     
-    @ebook.subcategory = category.subcategories.first(:gubun => "ebook", :order => :priority).id
+    if category.subcategories.first(:gubun => "ebook", :order => :priority) != nil
+      @ebook.subcategory = category.subcategories.first(:gubun => "ebook", :order => :priority).id
+    else
+      @ebook.subcategory = nil
+    end
     
     if @ebook.save
       
@@ -359,7 +362,11 @@ class Admin::EbooksController < ApplicationController
   
   def subcategory_change_update
     ebook = Ebook.get(params[:id].to_i)
-    ebook.subcategory = params[:value].to_i
+    if params[:value] != nil and params[:value] != ""
+      ebook.subcategory = params[:value].to_i
+    else
+      ebook.subcategory = nil
+    end
     
     if ebook.save
       render :text => "success"
