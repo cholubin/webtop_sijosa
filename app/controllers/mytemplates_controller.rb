@@ -192,7 +192,12 @@ class MytemplatesController < ApplicationController
     
     source_path = @mytemplate.pdf_path
     destination_dir = mypdf.basic_path + mypdf.pdf_filename
+    
+    puts_message "source_path::"+source_path
+    puts_message "destination_dir::"+destination_dir
+    
     FileUtils.cp_r source_path, destination_dir
+      
     
     #Thumbnail 생성 
     thumb_image_name = mypdf.pdf_filename.gsub(/.pdf/,'') + "_t" + ".jpg"

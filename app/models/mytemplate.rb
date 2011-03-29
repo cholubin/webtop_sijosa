@@ -49,6 +49,10 @@ class Mytemplate
   end
 
   def file_path   
+    dir = "#{RAILS_ROOT}" + "/public/user_files/#{self.user.userid}/pdfs/"
+    FileUtils.mkdir_p dir if not File.exist?(dir)
+    FileUtils.chmod 0777, dir
+    
     dir = "#{RAILS_ROOT}" + "/public/user_files/#{self.user.userid}/templates/"
     FileUtils.mkdir_p dir if not File.exist?(dir)
     FileUtils.chmod 0777, dir
