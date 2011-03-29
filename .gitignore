@@ -11,3 +11,4 @@ db/*
 config/environment.rb
 public/sharedimage/*
 public/pdf_admin/*
+public/ebook/*

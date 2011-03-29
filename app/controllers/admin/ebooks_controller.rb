@@ -296,12 +296,13 @@ class Admin::EbooksController < ApplicationController
     if !chk.nil? 
       chk.each do |chk|
         @ebook = Ebook.get(chk[0].to_i)
+        
         begin         
           
           if File.exist?(@ebook.ebook_path + ".zip")
         	  File.delete(@ebook.ebook_path + ".zip")         #original image file
             File.delete(@ebook.path + "/Thumb/" + @ebook.id.to_s + ".jpg")   #thumbnail image file  	  
-            File.rm_rf(@ebook.ebook_path)
+            FileUtils.rm_rf(@ebook.ebook_path)
         	end
         rescue
           puts_message "파일삭제 실패!"
