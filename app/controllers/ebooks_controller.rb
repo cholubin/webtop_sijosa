@@ -6,8 +6,29 @@ class EbooksController < ApplicationController
     @menu = "ebook"
     @board = "ebook"
     @section = "index"
-  
-    @ebooks = Ebook.all()
+
+    if params[:cate] != nil and params[:cate] != ""
+      category = params[:cate]
+    else
+      category = "all"
+    end
+    
+    if params[:subcate] != nil and params[:subcate] != ""
+      subcategory = params[:subcate]
+    else
+      subcategory = "all"
+    end
+    
+    if category != "all"
+      @ebooks = Ebook.all(:category => category.to_i)
+    else
+      @ebooks = Ebook.all()
+    end
+    
+    if subcategory != "all"
+      @ebooks = @ebooks.all(:subcategory => subcategory.to_i)
+    end
+    
     @ebooks = @ebooks.search(params[:search], params[:page])      
     
     @categories = Category.all(:gubun => "ebook", :order => [:priority])
