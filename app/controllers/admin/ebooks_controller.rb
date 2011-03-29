@@ -332,6 +332,16 @@ class Admin::EbooksController < ApplicationController
         end
     end
   
+   def category_update
+
+     @categories = Category.all(:gubun => "ebook")
+
+     render :update do |page|
+       page.replace_html 'categories', :partial => 'categories', :object => @categories
+     end
+
+   end
+     
   def category_change_update
     @ebook = Ebook.get(params[:id].to_i)
     @ebook.category = params[:value].to_i

@@ -344,6 +344,16 @@ class Admin::SharedimagesController < ApplicationController
     redirect_to '/admin/sharedimages'
    end
 
+   def category_update
+     
+     @categories = Category.all(:gubun => "image")
+     
+     render :update do |page|
+       page.replace_html 'categories', :partial => 'categories', :object => @categories
+     end
+     
+   end
+   
    def update_subcategories
         categories = Category.get(params[:category_id].to_i)
         subcategories = categories.subcategories.all(:order => :priority)

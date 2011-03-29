@@ -9,6 +9,7 @@
 
 	</div>
 	<p>
+		<div id="categories">
 		카테고리:<select id="category_select">
 			<option value="all">전체</option>
 			<% @categories.each do |cat| %>
@@ -16,7 +17,8 @@
 			<%end %>
 			<!-- </select><input type="button" value="카테고리관리" style="cursor:pointer;" onClick="location.href='/admin/imgcategories'"> -->
 			</select><input id="btn_category" type="button" value="카테고리관리" style="cursor:pointer;">
-	  <p/>
+	  	</div>
+		<p/>
 	
 	<div id="category_section" status="off" style="margin-left:-100"></div>
 	
@@ -210,9 +212,17 @@ $('#btn_category').live("click", function(){
 	if( $('#category_section').attr("status") == "off"){
 		$('#category_section').show("slow");
 		$('#category_section').attr("status","on");
+		$('#btn_category').val("카테고리관리 닫기");
 	}else{
 		$('#category_section').hide("slow");
 		$('#category_section').attr("status","off");
+		$('#btn_category').val("카테고리관리");
+		
+		$.ajax({
+			dataType:'script', 
+			type:'post', 
+			url:'/admin/ebooks/category_update'
+		});
 	}
 })
 
